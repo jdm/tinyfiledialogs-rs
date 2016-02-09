@@ -1,0 +1,9 @@
+[package]
+name = "tinyfiledialogs"
+version = "0.1.0"
+authors = ["Guillaume Vareille <vareille@users.sourceforge.net>", "Josh Matthews <josh@joshmatthews.net>"]
+license = "zlib-acknowledgement"
+
+build = "build.rs"
+
+[dependencies]
