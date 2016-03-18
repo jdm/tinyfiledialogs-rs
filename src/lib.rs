@@ -3,12 +3,6 @@ use libc::c_char;
 use libc::c_uchar;
 use libc::c_int;
 
-#[cfg(test)]
-mod test {
-    #[test]
-    fn it_works() {
-    }
-}
 extern {
 
     pub fn tinyfd_messageBox (
