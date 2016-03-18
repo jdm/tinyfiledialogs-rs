@@ -13,5 +13,6 @@ fn main() {
         .unwrap()
         .success());
     println!("cargo:rustc-flags=-L native={}", env::var("OUT_DIR").unwrap());
+    println!("cargo:rustc-flags=-l tinyfiledialogs -L target/debug/build/tinyfiledialogs-4949874712ebf6d8/out");
 }
 
