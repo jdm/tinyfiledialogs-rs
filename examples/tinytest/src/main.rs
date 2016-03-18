@@ -58,7 +58,7 @@ fn select_folder_dialog(title: &CStr, path: &CStr) {
     }
 
 }
-fn color_chooser_dialog(title: &CStr, default_hex: &CStr, default_RGB: [c_uchar ; 3], result_RGB: [c_uchar ; 3]) {
+fn color_chooser_dialog(title: &CStr, default_hex: &CStr, default_RGB: &[c_uchar ; 3], result_RGB: &[c_uchar ; 3]) {
 
     unsafe{
 
@@ -130,8 +130,8 @@ fn main()
     color_chooser_dialog(
         &color_title,
         &color_default_hex,
-        color_default_RGB,
-        color_result_RGB);
+        &color_default_RGB,
+        &color_result_RGB);
 
 
 }
