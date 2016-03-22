@@ -3,13 +3,9 @@ extern crate libc;
 
 use std::ffi::{CString, CStr};
 use libc::c_int;
-use libc::c_uchar;
-
 
 fn message_box(title: &CStr, message: &CStr, dialog_type: &CStr, icon: &CStr, button: c_int) {
-
-    unsafe{
-
+    unsafe {
         tinyfiledialogs::tinyfd_messageBox(
             title.as_ptr(),
             message.as_ptr(),
@@ -18,17 +14,15 @@ fn message_box(title: &CStr, message: &CStr, dialog_type: &CStr, icon: &CStr, bu
             button);
     }
 }
+
 fn input_box(title: &CStr, message: &CStr, default: &CStr) {
-
-    unsafe{
-
-        tinyfiledialogs::tinyfd_inputBox(title.as_ptr(),message.as_ptr(),default.as_ptr());
+    unsafe {
+        tinyfiledialogs::tinyfd_inputBox(title.as_ptr(), message.as_ptr(), default.as_ptr());
     }
 }
+
 fn save_file_dialog(title: &CStr, path: &CStr, num_patterns: c_int, filter_patterns: &CStr, des: &CStr) {
-
-    unsafe{
-
+    unsafe {
         tinyfiledialogs::tinyfd_saveFileDialog(
             title.as_ptr(),
             path.as_ptr(),
@@ -37,10 +31,9 @@ fn save_file_dialog(title: &CStr, path: &CStr, num_patterns: c_int, filter_patte
             des.as_ptr());
     }
 }
+
 fn open_file_dialog(title: &CStr, path: &CStr, num_patterns: c_int, filter_patterns: &CStr, des: &CStr, multi_select: c_int) {
-
-    unsafe{
-
+    unsafe {
         tinyfiledialogs::tinyfd_openFileDialog(
             title.as_ptr(),
             path.as_ptr(),
@@ -50,24 +43,20 @@ fn open_file_dialog(title: &CStr, path: &CStr, num_patterns: c_int, filter_patte
             multi_select);
     }
 }
+
 fn select_folder_dialog(title: &CStr, path: &CStr) {
-
-    unsafe{
-
-        tinyfiledialogs::tinyfd_selectFolderDialog(title.as_ptr(),path.as_ptr());
+    unsafe {
+        tinyfiledialogs::tinyfd_selectFolderDialog(title.as_ptr(), path.as_ptr());
     }
-
 }
-fn color_chooser_dialog(title: &CStr, default_hex: &CStr, default_RGB: &[c_uchar ; 3], result_RGB: &[c_uchar ; 3]) {
 
-    unsafe{
-
-        tinyfiledialogs::tinyfd_colorChooser(title.as_ptr(),default_hex.as_ptr(),default_RGB,result_RGB);
+fn color_chooser_dialog(title: &CStr, default_hex: &CStr, default_rgb: &CStr, result_rgb: &CStr) {
+    unsafe {
+        tinyfiledialogs::tinyfd_colorChooser(title.as_ptr(), default_hex.as_ptr(), default_rgb.as_ptr(), result_rgb.as_ptr());
     }
-
 }
-fn main()
-{
+
+fn main() {
     let message_box_title          = CString::new("Title").unwrap();
     let message_box_message        = CString::new("Hello, world!").unwrap();
     let message_box_type           = CString::new("yes").unwrap();
@@ -124,14 +113,12 @@ fn main()
 
     let color_title                      = CString::new("Color Choose").unwrap();
     let color_default_hex                = CString::new("Color Choose").unwrap();
-    let color_default_RGB : [c_uchar ; 3] = [250,0,0];
-    let color_result_RGB  : [c_uchar ; 3] = [100,0,0];
+    let color_default_rgb                = CString::new("FFF").unwrap();
+    let color_result_rgb                 = CString::new("AAA").unwrap();
 
     color_chooser_dialog(
         &color_title,
         &color_default_hex,
-        &color_default_RGB,
-        &color_result_RGB);
-
-
+        &color_default_rgb,
+        &color_result_rgb);
 }

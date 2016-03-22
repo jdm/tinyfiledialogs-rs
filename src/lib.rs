@@ -1,6 +1,5 @@
 extern crate libc;
 use libc::c_char;
-use libc::c_uchar;
 use libc::c_int;
 
 extern {
@@ -39,6 +38,6 @@ extern {
     pub fn tinyfd_colorChooser (
         aTitle: *const c_char,
         aDefaultHexRGB: *const c_char,
-        aDefaultRGB: &[c_uchar ; 3],
-        aoResultRGB: &[c_uchar; 3]) -> *const c_char;
+        aDefaultRGB: *const c_char,
+        aoResultRGB: *const c_char) -> *const c_char;
 }
