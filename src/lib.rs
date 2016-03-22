@@ -1,9 +1,7 @@
 extern crate libc;
-use libc::c_char;
-use libc::c_int;
+use libc::{c_char, c_uchar, c_int};
 
 extern {
-
     pub fn tinyfd_messageBox (
         aTitle: *const c_char ,
         aMessage: *const c_char,
@@ -20,14 +18,14 @@ extern {
         aTitle: *const c_char,
         aDefaultPathAndFile: *const c_char,
         aNumOfFilterPatterns: c_int,
-        aFilterPatterns: *const c_char,
+        aFilterPatterns: *const *const c_char,
         aSingleFilterDescription: *const c_char) -> *const c_char;
 
     pub fn tinyfd_openFileDialog (
         aTitle: *const c_char,
         aDefaultPathAndFile: *const c_char,
         aNumOfFilterPatterns: c_int,
-        aFilterPatterns: *const c_char,
+        aFilterPatterns: *const *const c_char,
         aSingleFilterDescription: *const c_char,
         aAllowMultipleSelects: c_int) -> *const c_char;
 
@@ -38,6 +36,6 @@ extern {
     pub fn tinyfd_colorChooser (
         aTitle: *const c_char,
         aDefaultHexRGB: *const c_char,
-        aDefaultRGB: *const c_char,
-        aoResultRGB: *const c_char) -> *const c_char;
+        aDefaultRGB: *const c_uchar,
+        aoResultRGB: *const c_uchar) -> *const c_char;
 }
