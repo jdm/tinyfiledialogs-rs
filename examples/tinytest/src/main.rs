@@ -33,12 +33,13 @@ fn save_file_dialog(title: &CStr, path: &CStr,
                     num_patterns: c_int,
                     filter_pattern_one: &CStr, des: &CStr) -> *const c_char {
     let filter_patterns : [&CStr; 1] = [filter_pattern_one];
+    let ptr_filter_patterns = filter_patterns.iter().map(|c| c.as_ptr()).collect::<Vec<*const c_char>>().as_ptr();
     unsafe {
         let result: *const c_char = tinyfiledialogs::tinyfd_saveFileDialog(
             title.as_ptr(),
             path.as_ptr(),
             num_patterns,
-            filter_patterns.iter().map(|c| c.as_ptr()).collect::<Vec<*const c_char>>().as_ptr(),
+            ptr_filter_patterns,
             des.as_ptr());
 
         result
@@ -49,12 +50,13 @@ fn open_file_dialog(title: &CStr, path: &CStr,
                     num_patterns: c_int, filter_pattern_one: &CStr,
                     des: &CStr, multi_select: c_int) -> *const c_char {
     let filter_patterns : [&CStr; 1] = [filter_pattern_one];
+    let ptr_filter_patterns = filter_patterns.iter().map(|c| c.as_ptr()).collect::<Vec<*const c_char>>().as_ptr();
     unsafe {
         let result: *const c_char = tinyfiledialogs::tinyfd_openFileDialog(
             title.as_ptr(),
             path.as_ptr(),
             num_patterns,
-            filter_patterns.iter().map(|c| c.as_ptr()).collect::<Vec<*const c_char>>().as_ptr(),
+            ptr_filter_patterns,
             des.as_ptr(),
             multi_select);
         
