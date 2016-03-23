@@ -10,7 +10,7 @@ endif
 all: $(OUT_DIR)/libtinyfiledialogs.a
 
 $(OUT_DIR)/tinyfiledialogs.o: libtinyfiledialogs/tinyfiledialogs.c $(CURDIR)/makefile.cargo
-	mkdir -p `dirname $@` && $(CC) $< -o $@ -c $(CXXFLAGS)
+	mkdir -p `dirname $@` && $(CC) $< -o $@ -c $(CXXFLAGS) -fPIC 
 
 $(OUT_DIR)/libtinyfiledialogs.a: $(OUT_DIR)/tinyfiledialogs.o
 	$(AR) rcs $@ $(OUT_DIR)/tinyfiledialogs.o

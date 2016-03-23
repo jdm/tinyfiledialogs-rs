@@ -1,0 +1,8 @@
+[package]
+name = "test"
+version = "0.1.0"
+authors = ["daniel <ddefisher@gmail.com>"]
+
+[dependencies]
+tinyfiledialogs = { path = "../../" }
+libc = "0.2.0"

@@ -7,3 +7,5 @@ license = "zlib-acknowledgement"
 build = "build.rs"
 
 [dependencies]
+libc = "0.2.0"
+
