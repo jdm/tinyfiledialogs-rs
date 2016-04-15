@@ -14,5 +14,9 @@ fn main() {
         .success());
     println!("cargo:rustc-flags=-L native={}", env::var("OUT_DIR").unwrap());
     println!("cargo:rustc-flags=-l tinyfiledialogs -L {}", env::var("OUT_DIR").unwrap());
+    
+    if target.contains("windows") {
+        println!("cargo:rustc-link-lib=static=tinyfiledialogs");
+    }
 }
 
