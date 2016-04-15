@@ -6,6 +6,9 @@ license = "zlib-acknowledgement"
 
 build = "build.rs"
 
+[lib]
+name = "tinyfiledialogs"
+
 [dependencies]
 libc = "0.2.0"
 
