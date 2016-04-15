@@ -1,8 +1,11 @@
 extern crate tinyfiledialogs;
 
+use tinyfiledialogs::{YesNo, MessageBoxIcon, DefaultColorValue};
+
 fn main() {
     
-    let choice = tinyfiledialogs::message_box("hello", "yes or no?", "yesno", "question", 0);
+    let choice = tinyfiledialogs::message_box_yes_no("hello", "yes or no?",
+                                                     MessageBoxIcon::Question, YesNo::No);
 
     let user_input: String;
     match tinyfiledialogs::input_box("Enter user name", "Username:", "") {
@@ -11,13 +14,13 @@ fn main() {
     }
 
     let save_file: String;
-    match tinyfiledialogs::save_file_dialog("Save", "password.txt", 1, "test.png", "") {
+    match tinyfiledialogs::save_file_dialog("Save", "password.txt") {
         Some(file) => save_file = file,
         None => save_file = "null".to_string(),
     }
 
     let open_file: String;
-    match tinyfiledialogs::open_file_dialog("Open", "password.txt", 0, "", "", 0) {
+    match tinyfiledialogs::open_file_dialog("Open", "password.txt", None) {
         Some(file) => open_file = file,
         None => open_file = "null".to_string(),
     }
@@ -28,19 +31,16 @@ fn main() {
         None => folder = "null".to_string(),
     }
 
-    let default_rgb: [u8; 3]  = [1, 0, 0];
-    let result_rgb:  [u8; 3]  = [1, 0, 0];
-
     let color: String;
-    match tinyfiledialogs::color_chooser_dialog("Choose a Color", "FF0000", default_rgb, result_rgb) {
-        Some(result) => color = result,
+    match tinyfiledialogs::color_chooser_dialog("Choose a Color", DefaultColorValue::Hex("#FF0000")) {
+        Some((hex_result, _rgb)) => color = hex_result,
         None => color = "null".to_string(),
     }
 
-    println!("Choice {}", choice);
-    println!("User input {}", user_input);
-    println!("Save file {}", save_file);
-    println!("Open file {}", open_file);
-    println!("folder {}", folder);
-    println!("color {}", color);
+    println!("Choice {:?}", choice);
+    println!("User input {:?}", user_input);
+    println!("Save file {:?}", save_file);
+    println!("Open file {:?}", open_file);
+    println!("folder {:?}", folder);
+    println!("color {:?}", color);
 }
