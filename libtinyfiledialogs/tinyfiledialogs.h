@@ -1,20 +1,25 @@
 /*
-tinyfiledialogs.h
-unique header file of "tiny file dialogs" created [November 9, 2014]
-Copyright (c) 2014 - 2016 Guillaume Vareille http://ysengrin.com
-http://tinyfiledialogs.sourceforge.net
+ _________
+/         \ tinyfiledialogs.c 
+|tiny file| Unique code file of "tiny file dialogs" created [November 9, 2014]
+| dialogs | Copyright (c) 2014 - 2016 Guillaume Vareille http://ysengrin.com
+\____  ___/ http://tinyfiledialogs.sourceforge.net
+     \|           	                     mailto:tinfyfiledialogs@ysengrin.com
 
- Let me know here mailto:tinfyfiledialogs@ysengrin.com
+            git://git.code.sf.net/p/tinyfiledialogs/code
+
+ Please
+	1) let me know
 	- if you are including tiny file dialogs,
 	  I'll be happy to add your link to the list of projects using it.
-	- If you are using it on not listed here hardware / OS / compiler.
-	- and please, leave a review on Sourceforge. Thanks.
+	- If you are using it on different hardware / OS / compiler.
+	2) Be the first to leave a review on Sourceforge. Thanks.
 
 tiny file dialogs (cross-platform C C++)
 InputBox PasswordBox MessageBox ColorPicker
 OpenFileDialog SaveFileDialog SelectFolderDialog
 Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE & more
-v2.3.1 [January 12, 2016] zlib licence.
+v2.3.6 [April 16, 2016] zlib licence.
 
 A single C file (add it to your C or C++ project) with 6 modal function calls:
 - message box & question box
@@ -46,7 +51,7 @@ On Unix (command line call attempts):
 The same executable can run across desktops & distributions.
 
 tested with C & C++ compilers
-on Windows Visual Studio MinGW Mac OSX LINUX FREEBSD ILLUMOS SOLARIS
+on Visual Studio MinGW OSX LINUX FREEBSD ILLUMOS SOLARIS MINIX RASPBIAN
 using Gnome Kde Enlightenment Mate Cinnamon Unity
 Lxde Lxqt Xfce WindowMaker IceWm Cde Jds OpenBox
  
@@ -86,11 +91,11 @@ extern "C" {
 
 
 int tinyfd_messageBox (
-    char const * const aTitle , /* "" */
-    char const * const aMessage , /* "" may contain \n \t */
-    char const * const aDialogType , /* "ok" "okcancel" "yesno" */
-    char const * const aIconType , /* "info" "warning" "error" "question" */
-    int const aDefaultButton ) ; /* 0 for cancel/no , 1 for ok/yes */
+  char const * const aTitle , /* "" */
+  char const * const aMessage , /* "" may contain \n \t */
+  char const * const aDialogType , /* "ok" "okcancel" "yesno" */
+  char const * const aIconType , /* "info" "warning" "error" "question" */
+  int const aDefaultButton ) ; /* 0 for cancel/no , 1 for ok/yes */
 	/* returns 0 for cancel/no , 1 for ok/yes */
 
 char const * tinyfd_inputBox (
@@ -100,26 +105,26 @@ char const * tinyfd_inputBox (
 	/* returns NULL on cancel */
 
 char const * tinyfd_saveFileDialog (
-    char const * const aTitle , /* "" */
-    char const * const aDefaultPathAndFile , /* "" */
-    int const aNumOfFilterPatterns , /* 0 */
-    char const * const * const aFilterPatterns , /* NULL | {"*.jpg","*.png"} */
-    char const * const aSingleFilterDescription ) ; /* NULL | "text files" */
+  char const * const aTitle , /* "" */
+  char const * const aDefaultPathAndFile , /* "" */
+  int const aNumOfFilterPatterns , /* 0 */
+  char const * const * const aFilterPatterns , /* NULL | {"*.jpg","*.png"} */
+  char const * const aSingleFilterDescription ) ; /* NULL | "text files" */
 	/* returns NULL on cancel */
 
 char const * tinyfd_openFileDialog (
-    char const * const aTitle , /* "" */
-    char const * const aDefaultPathAndFile , /* "" */
-    int const aNumOfFilterPatterns , /* 0 */
-    char const * const * const aFilterPatterns , /* NULL {"*.jpg","*.png"} */
-    char const * const aSingleFilterDescription , /* NULL | "image files" */
-    int const aAllowMultipleSelects ) ; /* 0 or 1 */
+  char const * const aTitle , /* "" */
+  char const * const aDefaultPathAndFile , /* "" */
+  int const aNumOfFilterPatterns , /* 0 */
+  char const * const * const aFilterPatterns , /* NULL {"*.jpg","*.png"} */
+  char const * const aSingleFilterDescription , /* NULL | "image files" */
+  int const aAllowMultipleSelects ) ; /* 0 or 1 */
 	/* in case of multiple files, the separator is | */
 	/* returns NULL on cancel */
 
 char const * tinyfd_selectFolderDialog (
 	char const * const aTitle , /* "" */
-    char const * const aDefaultPath ) ; /* "" */
+  char const * const aDefaultPath ) ; /* "" */
 	/* returns NULL on cancel */
 
 char const * tinyfd_colorChooser(
@@ -137,13 +142,14 @@ extern int tinyfd_forceConsole ;  /* 0 (default) or 1
 can be modified at run time.
 for unix & windows: 0 (graphic mode) or 1 (console mode).
 0: try to use a graphic solution, if it fails then it uses console mode.
-1: forces all dialogs into console mode even when the X server is present,
-   if the package dialog (and a console is present) or dialog.exe is installed.
+1: forces all dialogs into console mode even when the X server is present.
+   it will use the package dialog or dialog.exe if installed.
 on windows it only make sense for console applications */
 
 /* #define TINYFD_WIN_CONSOLE_ONLY //*/
 /* On windows, Define this if you don't want to include the code
-creating the GUI dialogs. Then you don't need link against Comdlg32.lib */
+creating the GUI dialogs.
+Then you don't need link against Comdlg32.lib and Ole32.lib */
 
 
 #ifdef	__cplusplus
@@ -156,6 +162,7 @@ creating the GUI dialogs. Then you don't need link against Comdlg32.lib */
 /*
 - This is not for android nor ios.
 - The code is pure C, perfectly compatible with C++.
+- AVOID USING " AND ' IN TITLES AND MESSAGES.
 - There's one file filter only, it may contain several patterns.
 - If no filter description is provided,
   the list of patterns will become the description.
@@ -164,7 +171,7 @@ creating the GUI dialogs. Then you don't need link against Comdlg32.lib */
   they open a console window for a few seconds.
 - On visual studio:
         set Configuration Properties/General Character Set to Multi-Byte.
-- On windows link against Comdlg32.lib
+- On windows link against Comdlg32.lib and Ole32.lib
   This linking is not compulsary for console mode (see above).
 - On unix: it tries command line calls, so no such need.
 - On unix you need applescript, zenity, kdialog, Xdialog, python2/tkinter
@@ -174,7 +181,6 @@ creating the GUI dialogs. Then you don't need link against Comdlg32.lib */
   with a textinputbox.
 - If nothing is found, it switches to basic console input,
   it opens a console if needed.
-- Avoid using " and ' in titles and messages.
 - Use windows separators on windows and unix separators on unix.
 - String memory is preallocated statically for all the returned values.
 - File and path names are tested before return, they are valid.
@@ -195,11 +201,11 @@ creating the GUI dialogs. Then you don't need link against Comdlg32.lib */
 - Here is the Hello World (and a bit more):
     if a console is missing, it will use graphic dialogs
     if a graphical display is absent, it will use console dialogs
+*/
 
 /* hello.c
 #include <stdio.h>
 #include "tinyfiledialogs.h"
-#pragma warning(disable:4996) // allows usage of strncpy, strcpy, strcat, sprintf, fopen
 int main()
 {
 	char const * lThePassword;
@@ -210,20 +216,22 @@ int main()
 
   tinyfd_forceConsole = tinyfd_messageBox("Hello World",
     "force dialogs into console mode?\
-    \n\t(it's better if dialog is installed)",
+    \n\t(it is better if dialog is installed)",
     "yesno", "question", 0);
 
   lThePassword =  tinyfd_inputBox(
     "a password box","your password will be revealed",NULL);
 
   lTheSaveFileName = tinyfd_saveFileDialog (
-	"let's save this password",
+	"let us save this password",
     "passwordFile.txt",
     0,
     NULL,
     NULL );
 
+#pragma warning(disable:4996) // silences warning about fopen
 	lIn = fopen(lTheSaveFileName, "w");
+#pragma warning(default:4996)
 	if (!lIn)
 	{
 		tinyfd_messageBox(
@@ -238,14 +246,16 @@ int main()
 	fclose(lIn);
 
     lTheOpenFileName = tinyfd_openFileDialog (
-		"let's read this password",
+		"let us read this password back",
 		"",
 		0,
 		NULL,
 		NULL,
 		0);
 
+#pragma warning(disable:4996) // silences warning about fopen
 	lIn = fopen(lTheOpenFileName, "r");
+#pragma warning(default:4996)
 	if (!lIn)
 	{
 		tinyfd_messageBox(
@@ -259,10 +269,9 @@ int main()
 	fgets(lBuffer, sizeof(lBuffer), lIn);
 	fclose(lIn);
 
-  if ( lBuffer )
+  if ( *lBuffer )
     tinyfd_messageBox("your password is", lBuffer, "ok", "info", 1);
 }
-#pragma warning(default:4996)
 
 OSX :
 $ gcc -o hello.app hello.c tinyfiledialogs.c
@@ -271,10 +280,11 @@ UNIX :
 $ gcc -o hello hello.c tinyfiledialogs.c
 
 MinGW :
-> gcc -o hello.exe hello.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32
+> gcc -o hello.exe hello.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32 -lole32
  
 VisualStudio :
-  Create a console application project, it links against Comdlg32.lib.
+  Create a console application project,
+	it links against Comdlg32.lib & Ole32.lib.
 	Right click on your Project, select Properties.
 	Configuration Properties/General Character Set to Multi-Byte.
 */

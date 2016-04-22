@@ -1,20 +1,25 @@
 /*
-tinyfiledialogs.c 
-Unique code file of "tiny file dialogs" created [November 9, 2014]
-Copyright (c) 2014 - 2016 Guillaume Vareille http://ysengrin.com
-http://tinyfiledialogs.sourceforge.net
- 
- Let me know here mailto:tinfyfiledialogs@ysengrin.com
+ _________
+/         \ tinyfiledialogs.c 
+|tiny file| Unique code file of "tiny file dialogs" created [November 9, 2014]
+| dialogs | Copyright (c) 2014 - 2016 Guillaume Vareille http://ysengrin.com
+\____  ___/ http://tinyfiledialogs.sourceforge.net
+     \|           	                     mailto:tinfyfiledialogs@ysengrin.com
+
+            git://git.code.sf.net/p/tinyfiledialogs/code
+
+ Please
+	1) let me know
 	- if you are including tiny file dialogs,
 	  I'll be happy to add your link to the list of projects using it.
-	- If you are using it on not listed here hardware / OS / compiler.
-	- and please, leave a review on Sourceforge. Thanks.
- 
+	- If you are using it on different hardware / OS / compiler.
+	2) Be the first to leave a review on Sourceforge. Thanks.
+
 tiny file dialogs (cross-platform C C++)
 InputBox PasswordBox MessageBox ColorPicker
 OpenFileDialog SaveFileDialog SelectFolderDialog
 Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE & more
-v2.3.1 [January 12, 2016] zlib licence.
+v2.3.6 [April 16, 2016] zlib licence.
 
 A single C file (add it to your C or C++ project) with 6 modal function calls:
 - message box & question box
@@ -46,7 +51,7 @@ On Unix (command line call attempts):
 The same executable can run across desktops & distributions.
 
 tested with C & C++ compilers
-on Windows Visual Studio 2013 MinGW Mac OSX LINUX FREEBSD ILLUMOS SOLARIS
+on Visual Studio MinGW OSX LINUX FREEBSD ILLUMOS SOLARIS MINIX RASPBIAN
 using Gnome Kde Enlightenment Mate Cinnamon Unity
 Lxde Lxqt Xfce WindowMaker IceWm Cde Jds OpenBox
 
@@ -295,6 +300,7 @@ static int replaceChr ( char * const aString ,
 	{
 		return 0 ;
 	}
+
 	if ( aOldChr == aNewChr )
 	{
 		return 0 ;
@@ -693,9 +699,13 @@ static char const * saveFileDialogWinGui (
 	char lDirname [ MAX_PATH_OR_CMD ] ;
 	char lDialogString[MAX_PATH_OR_CMD];
 	char lFilterPatterns[MAX_PATH_OR_CMD] = "";
-    int i ;
-    char * p;
+	int i ;
+	char * p;
 	OPENFILENAME ofn ;
+	char * lRetval;
+	HRESULT lHResult;
+
+	lHResult = CoInitializeEx(NULL,0);
 
 	getPathWithoutFinalSlash(lDirname, aDefaultPathAndFile);
 	getLastName(aoBuff, aDefaultPathAndFile);
@@ -742,7 +752,7 @@ static char const * saveFileDialogWinGui (
 	ofn.nMaxFileTitle   = _MAX_FNAME + _MAX_EXT ;
 	ofn.lpstrInitialDir = lDirname;
 	ofn.lpstrTitle      = aTitle ;
-	ofn.Flags           = OFN_OVERWRITEPROMPT ;
+	ofn.Flags           = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR ;
 	ofn.nFileOffset     = 0 ;
 	ofn.nFileExtension  = 0 ;
 	ofn.lpstrDefExt     = NULL ;
@@ -752,12 +762,18 @@ static char const * saveFileDialogWinGui (
 
 	if ( GetSaveFileName ( & ofn ) == 0 )
 	{
-		return NULL ;
+		lRetval = NULL ;
 	}
 	else 
 	{ 
-		return aoBuff ;
+		lRetval = aoBuff ;
 	}
+
+	if (lHResult==S_OK || lHResult==S_FALSE) 
+	{
+		CoUninitialize();
+	}
+	return lRetval ;
 }
 
 
@@ -778,7 +794,11 @@ static char const * openFileDialogWinGui (
 	int i , j ;
 	char * p;
 	OPENFILENAME ofn;
-    size_t lBuffLen ;
+  size_t lBuffLen ;
+	char * lRetval;
+	HRESULT lHResult;
+		
+	lHResult = CoInitializeEx(NULL,0);
 
 	getPathWithoutFinalSlash(lDirname, aDefaultPathAndFile);
 	getLastName(aoBuff, aDefaultPathAndFile);
@@ -824,7 +844,7 @@ static char const * openFileDialogWinGui (
 	ofn.nMaxFileTitle   = _MAX_FNAME + _MAX_EXT ;
 	ofn.lpstrInitialDir = lDirname ;
 	ofn.lpstrTitle      = aTitle ;
-	ofn.Flags			= OFN_EXPLORER ;
+	ofn.Flags			= OFN_EXPLORER  | OFN_NOCHANGEDIR ;
 	ofn.nFileOffset     = 0 ;
 	ofn.nFileExtension  = 0 ;
 	ofn.lpstrDefExt     = NULL ;
@@ -839,40 +859,50 @@ static char const * openFileDialogWinGui (
 
 	if ( GetOpenFileName ( & ofn ) == 0 )
 	{
-		return NULL ;
+		lRetval = NULL ;
 	}
 	else 
 	{
 		lBuffLen = strlen(aoBuff) ;
 		lPointers[0] = aoBuff + lBuffLen + 1 ;
 		if ( !aAllowMultipleSelects || (lPointers[0][0] == '\0')  )
-			return aoBuff ;
-        
-		i = 0 ;
-		do
 		{
-			lLengths[i] = strlen(lPointers[i]);
-			lPointers[i+1] = lPointers[i] + lLengths[i] + 1 ;
-			i ++ ;
+			lRetval = aoBuff ;
 		}
-		while ( lPointers[i][0] != '\0' );
-		i--;
-		p = aoBuff + MAX_MULTIPLE*MAX_PATH_OR_CMD - 1 ;
-		* p = '\0';
-		for ( j = i ; j >=0 ; j-- )
+		else 
 		{
-			p -= lLengths[j];
-			memmove(p, lPointers[j], lLengths[j]);
-			p--;
-			*p = '\\';
-			p -= lBuffLen ;
-			memmove(p, aoBuff, lBuffLen);
-			p--;
-			*p = '|';
+			i = 0 ;
+			do
+			{
+				lLengths[i] = strlen(lPointers[i]);
+				lPointers[i+1] = lPointers[i] + lLengths[i] + 1 ;
+				i ++ ;
+			}
+			while ( lPointers[i][0] != '\0' );
+			i--;
+			p = aoBuff + MAX_MULTIPLE*MAX_PATH_OR_CMD - 1 ;
+			* p = '\0';
+			for ( j = i ; j >=0 ; j-- )
+			{
+				p -= lLengths[j];
+				memmove(p, lPointers[j], lLengths[j]);
+				p--;
+				*p = '\\';
+				p -= lBuffLen ;
+				memmove(p, aoBuff, lBuffLen);
+				p--;
+				*p = '|';
+			}
+			p++;
+			lRetval = p ;
 		}
-		p++;
-		return p ;
 	}
+
+	if (lHResult==S_OK || lHResult==S_FALSE) 
+	{
+		CoUninitialize();
+	}
+	return lRetval;
 }
 
 
@@ -883,6 +913,9 @@ static char const * selectFolderDialogWinGui (
 {
 	BROWSEINFO bInfo ;
 	LPITEMIDLIST lpItem ;
+	HRESULT lHResult;
+
+	lHResult = CoInitializeEx(NULL,0);
 	
 	/* we can't use aDefaultPath */
 	bInfo.hwndOwner = 0 ;
@@ -898,6 +931,11 @@ static char const * selectFolderDialogWinGui (
 	if ( lpItem )
 	{
 		SHGetPathFromIDList ( lpItem , aoBuff ) ;
+	}
+
+	if (lHResult==S_OK || lHResult==S_FALSE) 
+	{
+		CoUninitialize();
 	}
 	return aoBuff ;
 }
@@ -1167,7 +1205,8 @@ static char const * saveFileDialogWinConsole (
  	if ( aTitle && strlen(aTitle) )
 	{
 		strcat(lDialogString, "--title \"") ;
-		strcat(lDialogString, aTitle) ;
+		/*strcat(lDialogString, aTitle) ;*/
+		strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
 		strcat(lDialogString, "\" ") ;
 	}
 	strcat ( lDialogString , "--fselect \"" ) ;
@@ -1227,7 +1266,8 @@ static char const * openFileDialogWinConsole (
  	if ( aTitle && strlen(aTitle) )
 	{
 		strcat(lDialogString, "--title \"") ;
-		strcat(lDialogString, aTitle) ;
+		/*strcat(lDialogString, aTitle) ;*/
+		strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
 		strcat(lDialogString, "\" ") ;
 	}
 	strcat ( lDialogString , "--fselect \"" ) ;
@@ -1280,7 +1320,8 @@ static char const * selectFolderDialogWinConsole (
  	if ( aTitle && strlen(aTitle) )
 	{
 		strcat(lDialogString, "--title \"") ;
-		strcat(lDialogString, aTitle) ;
+		/*strcat(lDialogString, aTitle) ;*/
+		strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
 		strcat(lDialogString, "\" ") ;
 	}
 	strcat ( lDialogString , "--dselect \"" ) ;
@@ -1966,7 +2007,7 @@ static int whiptailPresent ( )
 static int graphicMode()
 {
 	return !( tinyfd_forceConsole && (isatty(1) || terminalName()) )
-			&& getenv ( "DISPLAY" );
+			&& ( getenv ( "DISPLAY" ) || isDarwin() ) ;
 }
 
 
@@ -3252,7 +3293,7 @@ char const * tinyfd_saveFileDialog (
 		}
 		else if ( isatty ( 1 ) )
 		{
-			strcpy ( lDialogString , "(dialog " ) ;
+			strcpy ( lDialogString , "@echo lala;(dialog " ) ;
 		}
 		else
 		{
@@ -3266,7 +3307,8 @@ char const * tinyfd_saveFileDialog (
  		if ( aTitle && strlen(aTitle) )
 		{
 			strcat(lDialogString, "--title \"") ;
-			strcat(lDialogString, aTitle) ;
+			/*strcat(lDialogString, aTitle) ;*/
+			strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
 			strcat(lDialogString, "\" ") ;
 		}
 		strcat ( lDialogString , "--fselect \"" ) ;
@@ -3282,6 +3324,10 @@ char const * tinyfd_saveFileDialog (
 		{
 			strcat(lDialogString, getenv("HOME")) ;
 			strcat(lDialogString, "/") ;
+		}
+		else
+		{
+			strcat(lDialogString, "./") ;
 		}
 
 		if ( lWasGraphicDialog )
@@ -3594,7 +3640,8 @@ frontmost of process \\\"Python\\\" to true' ''');");
 		if ( aTitle && strlen(aTitle) )
 		{
 			strcat(lDialogString, "--title \"") ;
-			strcat(lDialogString, aTitle) ;
+			/*strcat(lDialogString, aTitle) ;*/
+			strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
 			strcat(lDialogString, "\" ") ;
 		}
 		strcat ( lDialogString , "--fselect \"" ) ;
@@ -3610,6 +3657,10 @@ frontmost of process \\\"Python\\\" to true' ''');");
 		{
 			strcat(lDialogString, getenv("HOME")) ;
 			strcat(lDialogString, "/");
+		}
+		else
+		{
+			strcat(lDialogString, "./") ;
 		}
 
 		if ( lWasGraphicDialog )
@@ -3808,7 +3859,8 @@ frontmost of process \\\"Python\\\" to true' ''');");
 		if ( aTitle && strlen(aTitle) )
 		{
 			strcat(lDialogString, "--title \"") ;
-			strcat(lDialogString, aTitle) ;
+			/*strcat(lDialogString, aTitle) ;*/
+			strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
 			strcat(lDialogString, "\" ") ;
 		}
 		strcat ( lDialogString , "--dselect \"" ) ;
@@ -3821,6 +3873,10 @@ frontmost of process \\\"Python\\\" to true' ''');");
 		{
 			strcat(lDialogString, getenv("HOME")) ;
 			strcat(lDialogString, "/");
+		}
+		else
+		{
+			strcat(lDialogString, "./") ;
 		}
 		
 		if ( lWasGraphicDialog )
@@ -4079,14 +4135,14 @@ int main()
 
   tinyfd_forceConsole = tinyfd_messageBox("Hello World",
     "force dialogs into console mode?\
-    \n\t(it's better if dialog is installed)",
+    \n\t(it is better if dialog is installed)",
     "yesno", "question", 0);
 
   lThePassword =  tinyfd_inputBox(
     "a password box","your password will be revealed",NULL);
 
   lTheSaveFileName = tinyfd_saveFileDialog (
-	"let's save this password",
+	"let us save this password",
     "passwordFile.txt",
     0,
     NULL,
@@ -4107,7 +4163,7 @@ int main()
 	fclose(lIn);
 
     lTheOpenFileName = tinyfd_openFileDialog (
-		"let's read this password",
+		"let us read this password back",
 		"",
 		0,
 		NULL,
@@ -4128,7 +4184,7 @@ int main()
 	fgets(lBuffer, sizeof(lBuffer), lIn);
 	fclose(lIn);
 
-  if ( lBuffer )
+  if ( *lBuffer )
     tinyfd_messageBox("your password is", lBuffer, "ok", "info", 1);
 }
 //*/
@@ -4137,16 +4193,17 @@ int main()
 
 /*
 OSX :
-$ gcc -o main.app main.c tinyfiledialogs.c
+$ gcc -o hello.app hello.c tinyfiledialogs.c
  
 UNIX :
-$ gcc -o main main.c tinyfiledialogs.c
+$ gcc -o hello hello.c tinyfiledialogs.c
  
 MinGW :
-> gcc -o main.exe main.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32
+> gcc -o hello.exe hello.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32 -lole32
  
 VisualStudio :
-  Create a console application project, it links against Comdlg32.lib.
+  Create a console application project,
+	it links against Comdlg32.lib & Ole32.lib.
 	Right click on your Project, select Properties.
 	Configuration Properties/General Character Set to Multi-Byte.
 */
