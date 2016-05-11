@@ -19,7 +19,7 @@ tiny file dialogs (cross-platform C C++)
 InputBox PasswordBox MessageBox ColorPicker
 OpenFileDialog SaveFileDialog SelectFolderDialog
 Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE & more
-v2.3.6 [April 16, 2016] zlib licence.
+v2.3.8 [May 10, 2016] zlib licence.
 
 A single C file (add it to your C or C++ project) with 6 modal function calls:
 - message box & question box
@@ -29,9 +29,13 @@ A single C file (add it to your C or C++ project) with 6 modal function calls:
 - select folder dialog
 - color picker.
 
-Complement to OpenGL GLFW GLUT GLUI VTK SDL Ogre3D Unity3D
-or any GUI-less program, there is NO INIT & NO MAIN LOOP.
-The dialogs can be forced into console mode.
+Complement to OpenGL GLFW GLUT GLUI
+VTK SFML SDL Ogre Unity CEGUI ION MathGL
+CPW GLOW GLT NGL STB & GUI less programs
+
+NO INIT & NO MAIN LOOP
+
+The dialogs can be forced into console mode
 
 On Windows:
 - native code & some vbs create the graphic dialogs
@@ -510,7 +514,6 @@ static char const * inputBoxWinGui(
 		strcat(lDialogString, "\",\"");
 		if (aTitle && strlen(aTitle))
 		{
-
 			strcat(lDialogString, aTitle);
 		}
 		strcat(lDialogString, "\",\"");
@@ -1042,10 +1045,17 @@ static int messageBoxWinConsole (
 	strcpy ( lDialogString , "dialog " ) ;
 	if ( aTitle && strlen(aTitle) )
 	{
-		strcat(lDialogString, "--title \"") ;
+		strcat(lDialogString, "--backtitle \"") ;
 		strcat(lDialogString, aTitle) ;
 		strcat(lDialogString, "\" ") ;
 	}
+
+	if ( aDialogType && ( !strcmp( "okcancel" , aDialogType ) || !strcmp( "yesno" , aDialogType ) ) ) {
+		strcat(lDialogString, "--title \"") ;
+		strcat(lDialogString, "tab =move focus") ;
+		strcat(lDialogString, "\" ") ;
+	}
+
 	if ( aDialogType && ! strcmp( "okcancel" , aDialogType ) )
 	{
 		if ( ! aDefaultButton )
@@ -1130,10 +1140,15 @@ static char const * inputBoxWinConsole(
 	strcat ( lDialogString , "dialog " ) ;
 	if ( aTitle && strlen(aTitle) )
 	{
-		strcat(lDialogString, "--title \"") ;
+		strcat(lDialogString, "--backtitle \"") ;
 		strcat(lDialogString, aTitle) ;
 		strcat(lDialogString, "\" ") ;
 	}
+
+	strcat(lDialogString, "--title \"") ;
+	strcat(lDialogString, "tab =move focus") ;
+	strcat(lDialogString, "\" ") ;
+
 	if ( ! aDefaultInput )
 	{
 		strcat ( lDialogString , "--passwordbox" ) ;
@@ -1204,11 +1219,15 @@ static char const * saveFileDialogWinConsole (
 	strcpy ( lDialogString , "dialog " ) ;
  	if ( aTitle && strlen(aTitle) )
 	{
-		strcat(lDialogString, "--title \"") ;
-		/*strcat(lDialogString, aTitle) ;*/
-		strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+		strcat(lDialogString, "--backtitle \"") ;
+		strcat(lDialogString, aTitle) ;
 		strcat(lDialogString, "\" ") ;
 	}
+	
+	strcat(lDialogString, "--title \"") ;
+	strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+	strcat(lDialogString, "\" ") ;
+
 	strcat ( lDialogString , "--fselect \"" ) ;
 	if ( aDefaultPathAndFile && strlen(aDefaultPathAndFile) )
 	{
@@ -1265,11 +1284,15 @@ static char const * openFileDialogWinConsole (
 	strcpy ( lDialogString , "dialog " ) ;
  	if ( aTitle && strlen(aTitle) )
 	{
-		strcat(lDialogString, "--title \"") ;
-		/*strcat(lDialogString, aTitle) ;*/
-		strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+		strcat(lDialogString, "--backtitle \"") ;
+		strcat(lDialogString, aTitle) ;
 		strcat(lDialogString, "\" ") ;
 	}
+
+	strcat(lDialogString, "--title \"") ;
+	strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+	strcat(lDialogString, "\" ") ;
+
 	strcat ( lDialogString , "--fselect \"" ) ;
 	if ( aDefaultPathAndFile && strlen(aDefaultPathAndFile) )
 	{
@@ -1319,11 +1342,15 @@ static char const * selectFolderDialogWinConsole (
 	strcpy ( lDialogString , "dialog " ) ;
  	if ( aTitle && strlen(aTitle) )
 	{
-		strcat(lDialogString, "--title \"") ;
-		/*strcat(lDialogString, aTitle) ;*/
-		strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+		strcat(lDialogString, "--backtitle \"") ;
+		strcat(lDialogString, aTitle) ;
 		strcat(lDialogString, "\" ") ;
 	}
+
+	strcat(lDialogString, "--title \"") ;
+	strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+	strcat(lDialogString, "\" ") ;
+
 	strcat ( lDialogString , "--dselect \"" ) ;
 	if ( aDefaultPath && strlen(aDefaultPath) )
 	{
@@ -2522,10 +2549,17 @@ else :\n\tprint 1\n\"" ) ;
 
  		if ( aTitle && strlen(aTitle) )
 		{
-			strcat(lDialogString, "--title \"") ;
+			strcat(lDialogString, "--backtitle \"") ;
 			strcat(lDialogString, aTitle) ;
 			strcat(lDialogString, "\" ") ;
 		}
+
+		if ( aDialogType && ( !strcmp( "okcancel" , aDialogType ) || !strcmp( "yesno" , aDialogType ) ) ) {
+			strcat(lDialogString, "--title \"") ;
+			strcat(lDialogString, "tab =move focus") ;
+			strcat(lDialogString, "\" ") ;
+		}
+
 		if ( aDialogType && ! strcmp( "okcancel" , aDialogType ) )
 		{
 			if ( ! aDefaultButton )
@@ -2940,10 +2974,15 @@ frontmost of process \\\"Python\\\" to true' ''');");
 
 		if ( aTitle && strlen(aTitle) )
 		{
-			strcat(lDialogString, "--title \"") ;
+			strcat(lDialogString, "--backtitle \"") ;
 			strcat(lDialogString, aTitle) ;
 			strcat(lDialogString, "\" ") ;
 		}
+
+		strcat(lDialogString, "--title \"") ;
+		strcat(lDialogString, "tab =move focus") ;
+		strcat(lDialogString, "\" ") ;
+
 		if ( aDefaultInput || lWasGdialog )
 		{
 			strcat ( lDialogString , "--inputbox" ) ;
@@ -3306,11 +3345,15 @@ char const * tinyfd_saveFileDialog (
 
  		if ( aTitle && strlen(aTitle) )
 		{
-			strcat(lDialogString, "--title \"") ;
-			/*strcat(lDialogString, aTitle) ;*/
-			strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+			strcat(lDialogString, "--backtitle \"") ;
+			strcat(lDialogString, aTitle) ;
 			strcat(lDialogString, "\" ") ;
 		}
+
+		strcat(lDialogString, "--title \"") ;
+		strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+		strcat(lDialogString, "\" ") ;
+
 		strcat ( lDialogString , "--fselect \"" ) ;
 		if ( aDefaultPathAndFile && strlen(aDefaultPathAndFile) )
 		{
@@ -3639,11 +3682,15 @@ frontmost of process \\\"Python\\\" to true' ''');");
 
 		if ( aTitle && strlen(aTitle) )
 		{
-			strcat(lDialogString, "--title \"") ;
-			/*strcat(lDialogString, aTitle) ;*/
-			strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+			strcat(lDialogString, "--backtitle \"") ;
+			strcat(lDialogString, aTitle) ;
 			strcat(lDialogString, "\" ") ;
 		}
+
+		strcat(lDialogString, "--title \"") ;
+		strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+		strcat(lDialogString, "\" ") ;
+
 		strcat ( lDialogString , "--fselect \"" ) ;
 		if ( aDefaultPathAndFile && strlen(aDefaultPathAndFile) )
 		{
@@ -3858,11 +3905,15 @@ frontmost of process \\\"Python\\\" to true' ''');");
 
 		if ( aTitle && strlen(aTitle) )
 		{
-			strcat(lDialogString, "--title \"") ;
-			/*strcat(lDialogString, aTitle) ;*/
-			strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+			strcat(lDialogString, "--backtitle \"") ;
+			strcat(lDialogString, aTitle) ;
 			strcat(lDialogString, "\" ") ;
 		}
+
+		strcat(lDialogString, "--title \"") ;
+		strcat(lDialogString, "tab =move focus | spacebar =select | add / =populate") ;
+		strcat(lDialogString, "\" ") ;
+
 		strcat ( lDialogString , "--dselect \"" ) ;
 		if ( aDefaultPath && strlen(aDefaultPath) )
 		{
@@ -4120,7 +4171,77 @@ frontmost of process \\\"Python\\\" to true' ''');");
 	return lBuff ;
 }
 
+/* not cross platform - zenity only */
+/* contributed by Attila Dusnoki */
+char const * tinyfd_arrayDialog (
+	char const * const aTitle , /* "" */
+	int const aNumOfColumns , /* 2 */
+	char const * const * const aColumns , /* {"Column 1","Column 2"} */
+	int const aNumOfRows , /* 2 */
+	char const * const * const aCells ) 
+		/* {"Row1 Col1","Row1 Col2","Row2 Col1","Row2 Col2"} */
+{
+	static char lBuff [ MAX_PATH_OR_CMD ] ;
+	char lDialogString [ MAX_PATH_OR_CMD ] ;
+	FILE * lIn ;
+	lBuff[0]='\0';
+	int i ;
 
+	if ( zenityPresent() )
+	{
+		strcpy ( lDialogString , "zenity --list --print-column=ALL" ) ;
+		if ( aTitle && strlen(aTitle) )
+		{
+			strcat(lDialogString, " --title=\"") ;
+			strcat(lDialogString, aTitle) ;
+			strcat(lDialogString, "\"") ;
+		}
+
+		if ( aColumns && (aNumOfColumns > 0) )
+		{
+			for ( i = 0 ; i < aNumOfColumns ; i ++ )
+			{
+				strcat ( lDialogString , " --column=\"" ) ;
+				strcat ( lDialogString , aColumns [ i ] ) ;
+				strcat ( lDialogString , "\"" ) ;
+			}
+		}
+
+		if ( aCells && (aNumOfRows > 0) )
+		{
+			strcat ( lDialogString , " " ) ;
+			for ( i = 0 ; i < aNumOfRows*aNumOfColumns ; i ++ )
+			{
+				strcat ( lDialogString , "\"" ) ;
+				strcat ( lDialogString , aCells [ i ] ) ;
+				strcat ( lDialogString , "\" " ) ;
+			}
+		}
+	}
+	else
+	{
+		return NULL ;
+	}
+
+	/* printf ( "lDialogString: %s\n" , lDialogString ) ; //*/
+	if ( ! ( lIn = popen ( lDialogString , "r" ) ) )
+	{
+		return NULL ;
+	}
+	while ( fgets ( lBuff , sizeof ( lBuff ) , lIn ) != NULL )
+	{}
+	pclose ( lIn ) ;
+	if ( lBuff[ strlen ( lBuff ) -1 ] == '\n' )
+	{
+		lBuff[ strlen ( lBuff ) -1 ] = '\0' ;
+	}
+	/* printf ( "lBuff: %s\n" , lBuff ) ; //*/
+	if ( ! strlen ( lBuff ) )
+	{
+		return NULL ;
+	}
+	return lBuff ;
+}
 #endif /* _WIN32 */
 
 
@@ -4205,5 +4326,6 @@ VisualStudio :
   Create a console application project,
 	it links against Comdlg32.lib & Ole32.lib.
 	Right click on your Project, select Properties.
-	Configuration Properties/General Character Set to Multi-Byte.
+	Configuration Properties/General
+	Character Set to "Multi-Byte" or "Not Set"
 */

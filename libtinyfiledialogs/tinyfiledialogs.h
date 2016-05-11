@@ -19,7 +19,7 @@ tiny file dialogs (cross-platform C C++)
 InputBox PasswordBox MessageBox ColorPicker
 OpenFileDialog SaveFileDialog SelectFolderDialog
 Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE & more
-v2.3.6 [April 16, 2016] zlib licence.
+v2.3.8 [May 10, 2016] zlib licence.
 
 A single C file (add it to your C or C++ project) with 6 modal function calls:
 - message box & question box
@@ -29,9 +29,13 @@ A single C file (add it to your C or C++ project) with 6 modal function calls:
 - select folder dialog
 - color picker.
 
-Complement to OpenGL GLFW GLUT GLUI VTK SDL Ogre3D Unity3D
-or any GUI-less program, there is NO INIT & NO MAIN LOOP.
-The dialogs can be forced into console mode.
+Complement to OpenGL GLFW GLUT GLUI
+VTK SFML SDL Ogre Unity CEGUI ION MathGL
+CPW GLOW GLT NGL STB & GUI less programs
+
+NO INIT & NO MAIN LOOP
+
+The dialogs can be forced into console mode
 
 On Windows:
 - native code & some vbs create the graphic dialogs
@@ -138,6 +142,16 @@ char const * tinyfd_colorChooser(
 	/* aDefaultRGB and aoResultRGB can be the same array */
 	/* returns NULL on cancel */
 
+/* not cross platform - zenity only */
+char const * tinyfd_arrayDialog (
+	char const * const aTitle , /* "" */
+	int const aNumOfColumns , /* 2 */
+	char const * const * const aColumns , /* {"Column 1","Column 2"} */
+	int const aNumOfRows , /* 2*/
+	char const * const * const aCells ) ;
+		/* {"Row1 Col1","Row1 Col2","Row2 Col1","Row2 Col2"} */
+
+
 extern int tinyfd_forceConsole ;  /* 0 (default) or 1
 can be modified at run time.
 for unix & windows: 0 (graphic mode) or 1 (console mode).
@@ -170,7 +184,8 @@ Then you don't need link against Comdlg32.lib and Ole32.lib */
 - On windows, inputbox and passwordbox are not as smooth as they should be:
   they open a console window for a few seconds.
 - On visual studio:
-        set Configuration Properties/General Character Set to Multi-Byte.
+      set Properties/Configuration Properties/General
+			Character Set to "Multi-Byte" or "Not Set"
 - On windows link against Comdlg32.lib and Ole32.lib
   This linking is not compulsary for console mode (see above).
 - On unix: it tries command line calls, so no such need.
@@ -286,5 +301,6 @@ VisualStudio :
   Create a console application project,
 	it links against Comdlg32.lib & Ole32.lib.
 	Right click on your Project, select Properties.
-	Configuration Properties/General Character Set to Multi-Byte.
+	Configuration Properties/General
+	Character Set to "Multi-Byte" or "Not Set"
 */
