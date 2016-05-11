@@ -35,6 +35,13 @@ extern {
         aTitle: *const c_char,
         aDefaultPath: *const c_char) -> *const c_char;
 
+    fn tinyfd_arrayDialog (
+        aTitle: *const c_char,
+        aNumOfColumns: c_int,
+        aColumns: *const *const c_char,
+        aNumOfRows: c_int,
+        aCells: *const *const c_char) -> *const c_char;
+
     fn tinyfd_colorChooser (
         aTitle: *const c_char,
         aDefaultHexRGB: *const c_char,
@@ -234,6 +241,41 @@ pub fn select_folder_dialog(title: &str, path: &str) -> Option<String> {
     if !folder.is_null() {
         unsafe {
             Some(CStr::from_ptr(folder).to_string_lossy().into_owned())
+        }
+    } else {
+        None
+    }
+}
+
+pub fn list_dialog(title: &str,
+                   columns: &[&str],
+                   cells: Option<&[&str]>) -> Option<String> {
+    let list_dialog_title = CString::new(title).unwrap();
+
+    if columns.is_empty() {
+        return None;
+    }
+
+    let list_dialog_columns =
+        columns.iter().map(|s| CString::new(*s).unwrap()).collect::<Vec<CString>>();
+    let ptr_list_dialog_columns =
+        list_dialog_columns.iter().map(|c| c.as_ptr()).collect::<Vec<*const c_char>>();
+
+    let list_dialog_cells =
+        cells.map_or(vec![], |f| f.iter().map(|s| CString::new(*s).unwrap()).collect());
+    let ptr_list_dialog_cells =
+        list_dialog_cells.iter().map(|c| c.as_ptr()).collect::<Vec<*const c_char>>();
+
+    let dialog = unsafe {
+        tinyfd_arrayDialog(list_dialog_title.as_ptr(),
+                           list_dialog_columns.len() as c_int,
+                           ptr_list_dialog_columns.as_ptr(),
+                           (list_dialog_cells.len() / list_dialog_columns.len()) as c_int,
+                           ptr_list_dialog_cells.as_ptr())
+    };
+    if !dialog.is_null() {
+        unsafe {
+            Some(CStr::from_ptr(dialog).to_string_lossy().into_owned())
         }
     } else {
         None
