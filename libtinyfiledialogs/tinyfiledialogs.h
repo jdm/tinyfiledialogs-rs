@@ -1,14 +1,17 @@
 /*
  _________
-/         \ tinyfiledialogs.c 
-|tiny file| Unique code file of "tiny file dialogs" created [November 9, 2014]
+/         \ tinyfiledialogs.h
+|tiny file| Unique header file of "tiny file dialogs" created [November 9, 2014]
 | dialogs | Copyright (c) 2014 - 2016 Guillaume Vareille http://ysengrin.com
 \____  ___/ http://tinyfiledialogs.sourceforge.net
      \|           	                     mailto:tinfyfiledialogs@ysengrin.com
 
+A big thank you to Don Heyse http://ldglite.sf.net for
+                   his code contributions, bug corrections & thorough testing!
+		
             git://git.code.sf.net/p/tinyfiledialogs/code
 
- Please
+Please
 	1) let me know
 	- if you are including tiny file dialogs,
 	  I'll be happy to add your link to the list of projects using it.
@@ -18,47 +21,46 @@
 tiny file dialogs (cross-platform C C++)
 InputBox PasswordBox MessageBox ColorPicker
 OpenFileDialog SaveFileDialog SelectFolderDialog
-Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE & more
-v2.3.8 [May 10, 2016] zlib licence.
+Native dialog library for WINDOWS MAC OSX (10.4~10.11) GTK+ QT CONSOLE & more
+v2.5.2 [July 2, 2016] zlib licence
 
-A single C file (add it to your C or C++ project) with 6 modal function calls:
-- message box & question box
-- input box & password box
-- save file dialog
-- open file dialog & multiple files
-- select folder dialog
+A single C file (add it to your C or C++ project) with 6 boxes:
+- message / question
+- input / password
+- save file
+- open file & multiple files
+- select folder
 - color picker.
 
-Complement to OpenGL GLFW GLUT GLUI
-VTK SFML SDL Ogre Unity CEGUI ION MathGL
-CPW GLOW GLT NGL STB & GUI less programs
+Complements OpenGL GLFW GLUT GLUI VTK SFML SDL Ogre Unity ION
+CEGUI MathGL CPW GLOW IMGUI GLT NGL STB & GUI less programs
 
-NO INIT & NO MAIN LOOP
+NO INIT
+NO MAIN LOOP
 
 The dialogs can be forced into console mode
 
-On Windows:
+Windows [UTF-8 + UTF-16]
 - native code & some vbs create the graphic dialogs
 - enhanced console mode can use dialog.exe from
-  http://andrear.altervista.org/home/cdialog.php
-- basic console input.
+http://andrear.altervista.org/home/cdialog.php
+- basic console input
 
-On Unix (command line call attempts):
+Unix [UTF-8] (command line call attempts)
 - applescript
-- zenity
+- zenity / matedialog
 - kdialog
 - Xdialog
 - python2 tkinter
 - dialog (opens a console if needed)
-- whiptail, gdialog, gxmessage
-- basic console input.
-The same executable can run across desktops & distributions.
+- basic console input
+The same executable can run across desktops & distributions
 
 tested with C & C++ compilers
-on Visual Studio MinGW OSX LINUX FREEBSD ILLUMOS SOLARIS MINIX RASPBIAN
+on VisualStudio MinGW Mac Linux Bsd Solaris Minix Raspbian C# fortran (iso_c)
 using Gnome Kde Enlightenment Mate Cinnamon Unity
 Lxde Lxqt Xfce WindowMaker IceWm Cde Jds OpenBox
- 
+
 - License -
 
 This software is provided 'as-is', without any express or implied
@@ -81,90 +83,162 @@ misrepresented as being the original software.
 #ifndef TINYFILEDIALOGS_H
 #define TINYFILEDIALOGS_H
 
-/*
-if tinydialogs.c is compiled with a C++ compiler
-rather than with a C compiler, you need to comment out:
+/* if tinydialogs.c is compiled with a C++ compiler rather than with a C compiler
+(ie. you change the extension from .c to .cpp), you need to comment out:
 extern "C" {
 and the corresponding closing bracket:
-}
-*/
-
+} */
 #ifdef	__cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+extern char tinyfd_version[8];
+
+extern int tinyfd_forceConsole ;  /* 0 (default) or 1
+for unix & windows: 0 (graphic mode) or 1 (console mode).
+0: try to use a graphic solution, if it fails then it uses console mode.
+1: forces all dialogs into console mode even when the X server is present,
+  if the package dialog (and a console is present) or dialog.exe is installed.
+  on windows it only make sense for console applications */
+
+extern char tinyfd_response[1024];
+/* if you pass "tinyfd_query" as aTitle,
+the functions will not display the dialogs
+but will return 0 for console mode, 1 for graphic mode.
+tinyfd_response is then filled with the retain solution.
+possible values for tinyfd_response are (all lowercase)
+for the graphic mode:
+  windows applescript zenity zenity3 matedialog kdialog
+  xdialog tkinter gdialog gxmessage xmessage
+for the console mode:
+  dialog whiptail basicinput */
+
+/* #define TINYFD_NOLIB //*/
+/* On windows, define TINYFD_NOLIB here
+if you don't want to include the code creating the graphic dialogs.
+Then you won't need to link against Comdlg32.lib and Ole32.lib */
+
 
 int tinyfd_messageBox (
-  char const * const aTitle , /* "" */
-  char const * const aMessage , /* "" may contain \n \t */
-  char const * const aDialogType , /* "ok" "okcancel" "yesno" */
-  char const * const aIconType , /* "info" "warning" "error" "question" */
-  int const aDefaultButton ) ; /* 0 for cancel/no , 1 for ok/yes */
-	/* returns 0 for cancel/no , 1 for ok/yes */
+	char const * const aTitle , /* "" */
+	char const * const aMessage , /* "" may contain \n \t */
+	char const * const aDialogType , /* "ok" "okcancel" "yesno" */
+	char const * const aIconType , /* "info" "warning" "error" "question" */
+	int const aDefaultButton ) ; /* 0 for cancel/no , 1 for ok/yes */
+		/* returns 0 for cancel/no , 1 for ok/yes */
 
 char const * tinyfd_inputBox (
 	char const * const aTitle , /* "" */
 	char const * const aMessage , /* "" may NOT contain \n \t on windows */
 	char const * const aDefaultInput ) ;  /* "" , if NULL it's a passwordBox */
-	/* returns NULL on cancel */
+		/* returns NULL on cancel */
 
 char const * tinyfd_saveFileDialog (
-  char const * const aTitle , /* "" */
-  char const * const aDefaultPathAndFile , /* "" */
-  int const aNumOfFilterPatterns , /* 0 */
-  char const * const * const aFilterPatterns , /* NULL | {"*.jpg","*.png"} */
-  char const * const aSingleFilterDescription ) ; /* NULL | "text files" */
-	/* returns NULL on cancel */
+	char const * const aTitle , /* "" */
+	char const * const aDefaultPathAndFile , /* "" */
+	int const aNumOfFilterPatterns , /* 0 */
+	char const * const * const aFilterPatterns , /* NULL | {"*.jpg","*.png"} */
+	char const * const aSingleFilterDescription ) ; /* NULL | "text files" */
+		/* returns NULL on cancel */
 
 char const * tinyfd_openFileDialog (
-  char const * const aTitle , /* "" */
-  char const * const aDefaultPathAndFile , /* "" */
-  int const aNumOfFilterPatterns , /* 0 */
-  char const * const * const aFilterPatterns , /* NULL {"*.jpg","*.png"} */
-  char const * const aSingleFilterDescription , /* NULL | "image files" */
-  int const aAllowMultipleSelects ) ; /* 0 or 1 */
-	/* in case of multiple files, the separator is | */
-	/* returns NULL on cancel */
+	char const * const aTitle , /* "" */
+	char const * const aDefaultPathAndFile , /* "" */
+	int const aNumOfFilterPatterns , /* 0 */
+	char const * const * const aFilterPatterns , /* NULL {"*.jpg","*.png"} */
+	char const * const aSingleFilterDescription , /* NULL | "image files" */
+	int const aAllowMultipleSelects ) ; /* 0 or 1 */
+		/* in case of multiple files, the separator is | */
+		/* returns NULL on cancel */
 
 char const * tinyfd_selectFolderDialog (
 	char const * const aTitle , /* "" */
-  char const * const aDefaultPath ) ; /* "" */
-	/* returns NULL on cancel */
+	char const * const aDefaultPath ) ; /* "" */
+		/* returns NULL on cancel */
 
 char const * tinyfd_colorChooser(
 	char const * const aTitle , /* "" */
 	char const * const aDefaultHexRGB , /* NULL or "#FF0000" */
 	unsigned char const aDefaultRGB[3] , /* { 0 , 255 , 255 } */
 	unsigned char aoResultRGB[3] ) ; /* { 0 , 0 , 0 } */
-	/* returns the hexcolor as a string "#FF0000" */
-	/* aoResultRGB also contains the result */
-	/* aDefaultRGB is used only if aDefaultHexRGB is NULL */
-	/* aDefaultRGB and aoResultRGB can be the same array */
-	/* returns NULL on cancel */
+		/* returns the hexcolor as a string "#FF0000" */
+		/* aoResultRGB also contains the result */
+		/* aDefaultRGB is used only if aDefaultHexRGB is NULL */
+		/* aDefaultRGB and aoResultRGB can be the same array */
+		/* returns NULL on cancel */
 
-/* not cross platform - zenity only */
-char const * tinyfd_arrayDialog (
+
+/************ NOT CROSS PLATFORM SECTION STARTS HERE ************************/
+#ifdef _WIN32
+#ifndef TINYFD_NOLIB
+
+/* windows only */
+wchar_t const * tinyfd_utf8to16(char const * const aUtf8string);
+
+/* windows only */
+char const * tinyfd_utf16to8(wchar_t const * const aUtf16string);
+
+/* windows only - utf-16 version */
+int tinyfd_messageBoxW(
+	wchar_t const * const aTitle ,
+	wchar_t const * const aMessage, /* "" may contain \n \t */
+	wchar_t const * const aDialogType, /* "ok" "okcancel" "yesno" */
+	wchar_t const * const aIconType, /* "info" "warning" "error" "question" */
+	int const aDefaultButton ); /* 0 for cancel/no , 1 for ok/yes */
+		/* returns 0 for cancel/no , 1 for ok/yes */
+
+/* windows only - utf-16 version */
+wchar_t const * tinyfd_saveFileDialogW(
+	wchar_t const * const aTitle, /* NULL or "" */
+	wchar_t const * const aDefaultPathAndFile, /* NULL or "" */
+	int const aNumOfFilterPatterns, /* 0 */
+	wchar_t const * const * const aFilterPatterns, /* NULL or {"*.jpg","*.png"} */
+	wchar_t const * const aSingleFilterDescription); /* NULL or "image files" */
+		/* returns NULL on cancel */
+
+/* windows only - utf-16 version */
+wchar_t const * tinyfd_openFileDialogW(
+	wchar_t const * const aTitle, /* "" */
+	wchar_t const * const aDefaultPathAndFile, /* "" */
+	int const aNumOfFilterPatterns , /* 0 */
+	wchar_t const * const * const aFilterPatterns, /* NULL {"*.jpg","*.png"} */
+	wchar_t const * const aSingleFilterDescription, /* NULL | "image files" */
+	int const aAllowMultipleSelects ) ; /* 0 or 1 */
+		/* in case of multiple files, the separator is | */
+		/* returns NULL on cancel */
+
+/* windows only - utf-16 version */
+	wchar_t const * tinyfd_selectFolderDialogW(
+	wchar_t const * const aTitle, /* "" */
+	wchar_t const * const aDefaultPath); /* "" */
+		/* returns NULL on cancel */
+
+/* windows only - utf-16 version */
+wchar_t const * tinyfd_colorChooserW(
+	wchar_t const * const aTitle, /* "" */
+	wchar_t const * const aDefaultHexRGB, /* NULL or "#FF0000" */
+	unsigned char const aDefaultRGB[3] , /* { 0 , 255 , 255 } */
+	unsigned char aoResultRGB[3] ) ; /* { 0 , 0 , 0 } */
+		/* returns the hexcolor as a string "#FF0000" */
+		/* aoResultRGB also contains the result */
+		/* aDefaultRGB is used only if aDefaultHexRGB is NULL */
+		/* aDefaultRGB and aoResultRGB can be the same array */
+		/* returns NULL on cancel */
+
+
+#endif /*TINYFD_NOLIB*/
+#else /*_WIN32*/
+
+/* unix zenity only */
+char const * tinyfd_arrayDialog(
 	char const * const aTitle , /* "" */
 	int const aNumOfColumns , /* 2 */
-	char const * const * const aColumns , /* {"Column 1","Column 2"} */
-	int const aNumOfRows , /* 2*/
-	char const * const * const aCells ) ;
+	char const * const * const aColumns, /* {"Column 1","Column 2"} */
+	int const aNumOfRows, /* 2*/
+	char const * const * const aCells);
 		/* {"Row1 Col1","Row1 Col2","Row2 Col1","Row2 Col2"} */
 
-
-extern int tinyfd_forceConsole ;  /* 0 (default) or 1
-can be modified at run time.
-for unix & windows: 0 (graphic mode) or 1 (console mode).
-0: try to use a graphic solution, if it fails then it uses console mode.
-1: forces all dialogs into console mode even when the X server is present.
-   it will use the package dialog or dialog.exe if installed.
-on windows it only make sense for console applications */
-
-/* #define TINYFD_WIN_CONSOLE_ONLY //*/
-/* On windows, Define this if you don't want to include the code
-creating the GUI dialogs.
-Then you don't need link against Comdlg32.lib and Ole32.lib */
-
+#endif /*_WIN32 */
 
 #ifdef	__cplusplus
 }
@@ -172,10 +246,11 @@ Then you don't need link against Comdlg32.lib and Ole32.lib */
 
 #endif /* TINYFILEDIALOGS_H */
 
-
 /*
 - This is not for android nor ios.
 - The code is pure C, perfectly compatible with C++.
+- The API is Fortran ISO_C_BINDING compliant
+- C# via dll, see example file
 - AVOID USING " AND ' IN TITLES AND MESSAGES.
 - There's one file filter only, it may contain several patterns.
 - If no filter description is provided,
@@ -183,14 +258,11 @@ Then you don't need link against Comdlg32.lib and Ole32.lib */
 - char const * filterPatterns[3] = { "*.obj" , "*.stl" , "*.dxf" } ;
 - On windows, inputbox and passwordbox are not as smooth as they should be:
   they open a console window for a few seconds.
-- On visual studio:
-      set Properties/Configuration Properties/General
-			Character Set to "Multi-Byte" or "Not Set"
 - On windows link against Comdlg32.lib and Ole32.lib
   This linking is not compulsary for console mode (see above).
 - On unix: it tries command line calls, so no such need.
-- On unix you need applescript, zenity, kdialog, Xdialog, python2/tkinter
-  or dialog (will open a terminal if running without console);
+- On unix you need applescript, zenity, matedialog, kdialog, Xdialog,
+  python2/tkinter or dialog (will open a terminal if running without console).
 - One of those is already included on most (if not all) desktops.
 - In the absence of those it will use gdialog, gxmessage or whiptail
   with a textinputbox.
@@ -212,95 +284,7 @@ Then you don't need link against Comdlg32.lib and Ole32.lib */
   It can be found at the bottom of the following page:
   http://andrear.altervista.org/home/cdialog.php
 - If dialog is missing, it will switch to basic console input.
-
-- Here is the Hello World (and a bit more):
-    if a console is missing, it will use graphic dialogs
-    if a graphical display is absent, it will use console dialogs
+- You can query the type of dialog that will be use.
+- The Hello World (and a bit more) is on the sourceforge site:
 */
 
-/* hello.c
-#include <stdio.h>
-#include "tinyfiledialogs.h"
-int main()
-{
-	char const * lThePassword;
-	char const * lTheSaveFileName;
-	char const * lTheOpenFileName;
-	FILE * lIn;
-	char lBuffer[1024];
-
-  tinyfd_forceConsole = tinyfd_messageBox("Hello World",
-    "force dialogs into console mode?\
-    \n\t(it is better if dialog is installed)",
-    "yesno", "question", 0);
-
-  lThePassword =  tinyfd_inputBox(
-    "a password box","your password will be revealed",NULL);
-
-  lTheSaveFileName = tinyfd_saveFileDialog (
-	"let us save this password",
-    "passwordFile.txt",
-    0,
-    NULL,
-    NULL );
-
-#pragma warning(disable:4996) // silences warning about fopen
-	lIn = fopen(lTheSaveFileName, "w");
-#pragma warning(default:4996)
-	if (!lIn)
-	{
-		tinyfd_messageBox(
-			"Error",
-			"Can not open this file in writting mode",
-			"ok",
-			"error",
-			1 );
-		return(1);
-	}
-	fputs(lThePassword, lIn);
-	fclose(lIn);
-
-    lTheOpenFileName = tinyfd_openFileDialog (
-		"let us read this password back",
-		"",
-		0,
-		NULL,
-		NULL,
-		0);
-
-#pragma warning(disable:4996) // silences warning about fopen
-	lIn = fopen(lTheOpenFileName, "r");
-#pragma warning(default:4996)
-	if (!lIn)
-	{
-		tinyfd_messageBox(
-			"Error",
-			"Can not open this file in reading mode",
-			"ok",
-			"error",
-			1 );
-		return(1);
-	}
-	fgets(lBuffer, sizeof(lBuffer), lIn);
-	fclose(lIn);
-
-  if ( *lBuffer )
-    tinyfd_messageBox("your password is", lBuffer, "ok", "info", 1);
-}
-
-OSX :
-$ gcc -o hello.app hello.c tinyfiledialogs.c
- 
-UNIX :
-$ gcc -o hello hello.c tinyfiledialogs.c
-
-MinGW :
-> gcc -o hello.exe hello.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32 -lole32
- 
-VisualStudio :
-  Create a console application project,
-	it links against Comdlg32.lib & Ole32.lib.
-	Right click on your Project, select Properties.
-	Configuration Properties/General
-	Character Set to "Multi-Byte" or "Not Set"
-*/
