@@ -6,6 +6,10 @@ CC ?= gcc
 AR ?= ar
 endif
 
+ifneq ("$(MSYSTEM)","")
+OUT_DIR := $(shell cygpath "$(OUT_DIR)")
+endif
+
 .PHONY: all
 all: $(OUT_DIR)/libtinyfiledialogs.a
 
