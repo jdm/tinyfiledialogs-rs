@@ -35,6 +35,7 @@ extern {
         aTitle: *const c_char,
         aDefaultPath: *const c_char) -> *const c_char;
 
+    #[cfg(not(windows))]
     fn tinyfd_arrayDialog (
         aTitle: *const c_char,
         aNumOfColumns: c_int,
@@ -247,6 +248,7 @@ pub fn select_folder_dialog(title: &str, path: &str) -> Option<String> {
     }
 }
 
+#[cfg(not(windows))]
 pub fn list_dialog(title: &str,
                    columns: &[&str],
                    cells: Option<&[&str]>) -> Option<String> {
@@ -280,6 +282,13 @@ pub fn list_dialog(title: &str,
     } else {
         None
     }
+}
+
+#[cfg(windows)]
+pub fn list_dialog(_title: &str,
+                   _columns: &[&str],
+                   _cells: Option<&[&str]>) -> Option<String> {
+    None
 }
 
 pub enum DefaultColorValue<'a> {
