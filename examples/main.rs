@@ -3,7 +3,7 @@ extern crate tinyfiledialogs;
 use tinyfiledialogs::{YesNo, MessageBoxIcon, DefaultColorValue};
 
 fn main() {
-    
+
     let choice = tinyfiledialogs::message_box_yes_no("hello", "yes or no?",
                                                      MessageBoxIcon::Question, YesNo::No);
 
