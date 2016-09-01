@@ -1,6 +1,6 @@
 /*
  _________
-/         \ tinyfiledialogs.c 
+/         \ tinyfiledialogs.c v2.5.7 [August 16, 2016] zlib licence
 |tiny file| Unique code file of "tiny file dialogs" created [November 9, 2014]
 | dialogs | Copyright (c) 2014 - 2016 Guillaume Vareille http://ysengrin.com
 \____  ___/ http://tinyfiledialogs.sourceforge.net
@@ -21,8 +21,7 @@ Please
 tiny file dialogs (cross-platform C C++)
 InputBox PasswordBox MessageBox ColorPicker
 OpenFileDialog SaveFileDialog SelectFolderDialog
-Native dialog library for WINDOWS MAC OSX (10.4~10.11) GTK+ QT CONSOLE & more
-v2.5.5 [July 7, 2016] zlib licence
+Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE & more
 
 A single C file (add it to your C or C++ project) with 6 boxes:
 - message / question
@@ -40,7 +39,7 @@ NO MAIN LOOP
 
 The dialogs can be forced into console mode
 
-Windows [UTF-8 + UTF-16]
+Windows [MBCS + UTF-8 + UTF-16]
 - native code & some vbs create the graphic dialogs
 - enhanced console mode can use dialog.exe from
 http://andrear.altervista.org/home/cdialog.php
@@ -93,12 +92,12 @@ misrepresented as being the original software.
  #pragma warning(disable:4100) /* allows usage of strncpy, strcpy, strcat, sprintf, fopen */
  #pragma warning(disable:4706) /* allows usage of strncpy, strcpy, strcat, sprintf, fopen */
  #ifndef _WIN32_WINNT
- #define _WIN32_WINNT 0x0500
+  #define _WIN32_WINNT 0x0500
  #endif
  #ifndef TINYFD_NOLIB
   #include <Windows.h>
   #include <Shlobj.h>
- #endif /* TINYFD_NOLIB */
+ #endif
  #include <sys/stat.h>
  #include <conio.h>
  /*#include <io.h>*/
@@ -116,7 +115,7 @@ misrepresented as being the original software.
 #define MAX_PATH_OR_CMD 1024 /* _MAX_PATH or MAX_PATH */
 #define MAX_MULTIPLE_FILES 32
 
-char tinyfd_version [8] = "2.5.5";
+char tinyfd_version [8] = "2.5.7";
 
 #if defined(TINYFD_NOLIB) && defined(_WIN32)
 int tinyfd_forceConsole = 1 ;
@@ -832,10 +831,10 @@ static char const * inputBoxWinGui(
 	int lResult;
 	int lTitleLen;
 	int lMessageLen;
-/*	wchar_t * lDialogStringW; */
 
 #ifndef TINYFD_NOLIB
-/*	DWORD lDword; */
+	wchar_t * lDialogStringW;
+	DWORD lDword;
 #endif
 
 	lTitleLen =  aTitle ? strlen(aTitle) : 0 ;
@@ -978,12 +977,12 @@ name = 'txt_input' style = 'font-size: 11px;' value = '' ><BR>\n\
 
 	strcpy(lDialogString, "");
 
-/* #ifdef TINYFD_NOLIB */
-	if ( ! GetConsoleWindow() )
+#ifndef TINYFD_NOLIB
+	if ( aDefaultInput && !GetConsoleWindow())
 	{
 		strcat(lDialogString, "powershell -WindowStyle Hidden -Command \"");
 	}
-/* #endif */
+#endif
 
 	if (aDefaultInput)
 	{
@@ -996,37 +995,46 @@ name = 'txt_input' style = 'font-size: 11px;' value = '' ><BR>\n\
 			"mshta.exe %USERPROFILE%\\AppData\\Local\\Temp\\tinyfd.hta");
 	}
 
-	if (!GetConsoleWindow())
+#ifndef TINYFD_NOLIB
+	if (aDefaultInput && !GetConsoleWindow())
 	{
 		strcat(lDialogString, "\"");
 	}
+#endif
 
 	/* printf ( "lDialogString: %s\n" , lDialogString ) ; //*/
-	if (!(lIn = _popen(lDialogString, "r")))
-	{
-		free(lDialogString);
-		return NULL ;
-	}
-	while ( fgets ( aoBuff , MAX_PATH_OR_CMD , lIn ) != NULL )
-	{}
-	_pclose ( lIn ) ;
-	if ( aoBuff[strlen ( aoBuff ) -1] == '\n' )
-	{
-		aoBuff[strlen ( aoBuff ) -1] = '\0' ;
-	}
 
-/*	
-	if (tinyfd_winUtf8)
+#ifndef TINYFD_NOLIB
+	if ( ! aDefaultInput )
 	{
-		lDialogStringW = utf8to16(lDialogString);
-		lDword = runSilentW( lDialogStringW );
-		free(lDialogStringW);
+		if (tinyfd_winUtf8)
+		{
+			lDialogStringW = utf8to16(lDialogString);
+			lDword = runSilentW(lDialogStringW);
+			free(lDialogStringW);
+		}
+		else
+		{
+			lDword = runSilentA(lDialogString);
+		}
 	}
 	else
+#endif /* TINYFD_NOLIB */
 	{
-		lDword = runSilentA(lDialogString);
+		if (!(lIn = _popen(lDialogString, "r")))
+		{
+			free(lDialogString);
+			return NULL;
+		}
+		while (fgets(aoBuff, MAX_PATH_OR_CMD, lIn) != NULL)
+		{
+		}
+		_pclose(lIn);
+		if (aoBuff[strlen(aoBuff) - 1] == '\n')
+		{
+			aoBuff[strlen(aoBuff) - 1] = '\0';
+		}
 	}
-*/
 
 	if (aDefaultInput)
 	{
@@ -2431,7 +2439,11 @@ char const * tinyfd_inputBox(
 	HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
 #endif /* TINYFD_NOLIB */
 
-	if ((!tinyfd_forceConsole || !( GetConsoleWindow() || dialogPresent()))
+	if ((!tinyfd_forceConsole || !( 
+#ifndef TINYFD_NOLIB
+		GetConsoleWindow() || 
+#endif /* TINYFD_NOLIB */
+		dialogPresent()))
 		&& ( !getenv("SSH_CLIENT") || getenv("DISPLAY") ) )
 	{
 		if (aTitle&&!strcmp(aTitle,"tinyfd_query")){strcpy(tinyfd_response,"windows");return (char const *)1;}
@@ -3308,7 +3320,7 @@ int tinyfd_messageBox (
 				strcat ( lDialogString , "information" ) ;
 			}
 		}
-		strcat ( lDialogString , ";if [$? = 0];then echo 1;else echo 0;fi");
+		strcat ( lDialogString , ";if [ $? = 0 ];then echo 1;else echo 0;fi");
   }
 	else if ( kdialogPresent() )
 	{
@@ -3354,7 +3366,7 @@ int tinyfd_messageBox (
 			strcat(lDialogString, aTitle) ;
 			strcat(lDialogString, "\"") ;
 		}
-		strcat ( lDialogString , ";if [$? = 0];then echo 1;else echo 0;fi");
+		strcat ( lDialogString , ";if [ $? = 0 ];then echo 1;else echo 0;fi");
 	}
 	else if ( ! xdialogPresent() && tkinter2Present ( ) )
 	{
@@ -3594,11 +3606,11 @@ else :\n\tprint 1\n\"" ) ;
 		if ( lWasGraphicDialog )
 		{
 			strcat(lDialogString,
-				   "\" 10 60 ) 2>&1;if [$? = 0];then echo 1;else echo 0;fi");
+				   "\" 10 60 ) 2>&1;if [ $? = 0 ];then echo 1;else echo 0;fi");
 		}
 		else
 		{
-			strcat(lDialogString, "\" 10 60 >/dev/tty) 2>&1;if [$? = 0];");
+			strcat(lDialogString, "\" 10 60 >/dev/tty) 2>&1;if [ $? = 0 ];");
 			if ( lWasXterm )
 			{
 				strcat ( lDialogString ,
@@ -3864,7 +3876,7 @@ char const * tinyfd_inputBox(
 			strcat(lDialogString, " --hide-text") ;
 		}
 		strcat ( lDialogString ,
-				");if [$? = 0];then echo 1$szAnswer;else echo 0$szAnswer;fi");
+				");if [ $? = 0 ];then echo 1$szAnswer;else echo 0$szAnswer;fi");
 	}
 	else if ( kdialogPresent() )
 	{
@@ -3897,7 +3909,7 @@ char const * tinyfd_inputBox(
 			strcat(lDialogString, "\"") ;
 		}
 		strcat ( lDialogString ,
-				");if [$? = 0];then echo 1$szAnswer;else echo 0$szAnswer;fi");
+				");if [ $? = 0 ];then echo 1$szAnswer;else echo 0$szAnswer;fi");
 	}
 	else if ( ! xdialogPresent() && tkinter2Present ( ) )
 	{
@@ -4059,14 +4071,14 @@ frontmost of process \\\"Python\\\" to true' ''');");
 		if ( lWasGraphicDialog )
 		{
 			strcat(lDialogString,") 2>/tmp/tinyfd.txt;\
-	if [$? = 0];then tinyfdBool=1;else tinyfdBool=0;fi;\
+	if [ $? = 0 ];then tinyfdBool=1;else tinyfdBool=0;fi;\
 	tinyfdRes=$(cat /tmp/tinyfd.txt);\
 	rm /tmp/tinyfd.txt;echo $tinyfdBool$tinyfdRes") ;
 		}
 		else
 		{
 			strcat(lDialogString,">/dev/tty ) 2>/tmp/tinyfd.txt;\
-	if [$? = 0];then tinyfdBool=1;else tinyfdBool=0;fi;\
+	if [ $? = 0 ];then tinyfdBool=1;else tinyfdBool=0;fi;\
 	tinyfdRes=$(cat /tmp/tinyfd.txt);\
 	rm /tmp/tinyfd.txt;echo $tinyfdBool$tinyfdRes") ;
 			if ( lWasXterm )
