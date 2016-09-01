@@ -9,5 +9,5 @@ all non-Rust users of the library.
 
 To use this library, add this to the `dependencies` section in `Cargo.toml`:
 ```
-tinyfiledialogs = { git = "https://github.com/jdm/tinyfiledialogs-rs" }
+tinyfiledialogs = "2.0"
 ```

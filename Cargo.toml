@@ -1,9 +1,12 @@
 [package]
 name = "tinyfiledialogs"
 description = "High-level Rust binding for the tinyfiledialogs C library."
-version = "0.1.0"
+version = "2.5.7"
 authors = ["Guillaume Vareille <vareille@users.sourceforge.net>", "Josh Matthews <josh@joshmatthews.net>"]
 license = "zlib-acknowledgement"
+readme = "README.md"
+keywords = ["dialog", "ui", "windows", "unix"]
+repository = "https://github.com/jdm/tinyfiledialogs-rs"
 
 build = "build.rs"
 
