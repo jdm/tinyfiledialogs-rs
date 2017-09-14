@@ -13,6 +13,18 @@ fn main() {
         None => user_input = "null".to_string(),
     }
 
+    let user_input_2: String;
+    match tinyfiledialogs::input_box("Re-enter user name", "Username:", &user_input) {
+        Some(input) => user_input_2 = input,
+        None => user_input_2 = "null".to_string(),
+    }
+
+    let password_input: String;
+    match tinyfiledialogs::password_box("Enter password", "Password:") {
+        Some(input) => password_input = input,
+        None => password_input = "null".to_string(),
+    }
+
     let save_file: String;
     match tinyfiledialogs::save_file_dialog("Save", "password.txt") {
         Some(file) => save_file = file,
@@ -49,6 +61,8 @@ fn main() {
 
     println!("Choice {:?}", choice);
     println!("User input {:?}", user_input);
+    println!("User input 2 {:?}", user_input_2);
+    println!("Password input {:?}", password_input);
     println!("Save file {:?}", save_file);
     println!("Open file {:?}", open_file);
     println!("folder {:?}", folder);

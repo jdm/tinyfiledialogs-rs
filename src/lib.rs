@@ -124,7 +124,7 @@ fn input_box_impl(title: &str, message: &str, default: Option<&str>) -> Option<S
     let c_input = unsafe {
         tinyfd_inputBox(input_box_title.as_ptr(),
                         input_box_message.as_ptr(),
-                        input_box_default.map(|d| d.as_ptr()).unwrap_or(ptr::null()))
+                        input_box_default.as_ref().map(|d| d.as_ptr()).unwrap_or(ptr::null()))
     };
 
     if !c_input.is_null() {
