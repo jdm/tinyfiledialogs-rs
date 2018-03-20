@@ -1,7 +1,7 @@
 [package]
 name = "tinyfiledialogs"
 description = "High-level Rust binding for the tinyfiledialogs C library."
-version = "3.3.4"
+version = "3.3.5"
 authors = ["Guillaume Vareille <vareille@users.sourceforge.net>", "Josh Matthews <josh@joshmatthews.net>"]
 license = "zlib-acknowledgement"
 readme = "README.md"
@@ -17,4 +17,4 @@ name = "tinyfiledialogs"
 libc = "0.2.0"
 
 [build-dependencies]
-gcc = "0.3"
+cc = "1"
