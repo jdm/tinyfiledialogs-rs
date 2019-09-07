@@ -1,5 +1,5 @@
 /*_________
- /         \ tinyfiledialogs.c v3.3.4 [Mar 15, 2018] zlib licence
+ /         \ tinyfiledialogs.c v3.3.9 [Apr 14, 2019] zlib licence
  |tiny file| Unique code file created [November 9, 2014]
  | dialogs | Copyright (c) 2014 - 2018 Guillaume Vareille http://ysengrin.com
  \____  ___/ http://tinyfiledialogs.sourceforge.net
@@ -13,9 +13,7 @@
         | the windows only wchar_t UTF-16 prototypes are in the header file |
         |___________________________________________________________________|
 
-Please 1) upvote my stackoverflow answer/advert https://stackoverflow.com/a/47651444
-       2) leave a one word review on Sourceforge.
-       3) let me know If you are using it on exotic hardware/OS/compiler
+Please upvote my stackoverflow answer https://stackoverflow.com/a/47651444
 
 tiny file dialogs (cross-platform C C++)
 InputBox PasswordBox MessageBox ColorPicker
@@ -23,9 +21,9 @@ OpenFileDialog SaveFileDialog SelectFolderDialog
 Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE & more
 SSH supported via automatic switch to console mode or X11 forwarding
 
-a C file and a header (add them to your C or C++ project) with 8 functions:
+one C file + a header (add them to your C or C++ project) with 8 functions:
 - beep
-- notify popup
+- notify popup (tray)
 - message & question
 - input & password
 - save file
@@ -35,7 +33,7 @@ a C file and a header (add them to your C or C++ project) with 8 functions:
 
 Complements OpenGL Vulkan GLFW GLUT GLUI VTK SFML TGUI
 SDL Ogre Unity3d ION OpenCV CEGUI MathGL GLM CPW GLOW
-IMGUI MyGUI GLT NGL STB & GUI less programs
+Open3D IMGUI MyGUI GLT NGL STB & GUI less programs
 
 NO INIT
 NO MAIN LOOP
@@ -58,9 +56,9 @@ Unix (command line calls) ASCII UTF-8
 The same executable can run across desktops & distributions
 
 C89 & C++98 compliant: tested with C & C++ compilers
-VisualStudio MinGW-gcc GCC Clang TinyCC OpenWatcom-v2 BorlandC SunCC Zapcc
+VisualStudio MinGW-gcc GCC Clang TinyCC OpenWatcom-v2 BorlandC SunCC ZapCC
 on Windows Mac Linux Bsd Solaris Minix Raspbian
-using Gnome Kde Enlightenment Mate Cinnamon Unity Lxde Lxqt Xfce
+using Gnome Kde Enlightenment Mate Cinnamon Budgie Unity Lxde Lxqt Xfce
 WindowMaker IceWm Cde Jds OpenBox Awesome Jwm Xdm
 
 Bindings for LUA and C# dll, Haskell
@@ -89,7 +87,10 @@ misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef __sun
 #define _POSIX_C_SOURCE 2 /* to accept POSIX 2 in old ANSI C standards */
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -107,10 +108,10 @@ misrepresented as being the original software.
   #define _WIN32_WINNT 0x0500
  #endif
  #ifndef TINYFD_NOLIB
-  #include <Windows.h>
+  #include <windows.h>
   /*#define TINYFD_NOSELECTFOLDERWIN*/
   #ifndef TINYFD_NOSELECTFOLDERWIN
-   #include <Shlobj.h>
+   #include <shlobj.h>
   #endif /*TINYFD_NOSELECTFOLDERWIN*/
  #endif
  #include <conio.h>
@@ -131,9 +132,11 @@ misrepresented as being the original software.
 #define MAX_PATH_OR_CMD 1024 /* _MAX_PATH or MAX_PATH */
 #define MAX_MULTIPLE_FILES 32
 
-char const tinyfd_version [8] = "3.3.4";
+char const tinyfd_version [8] = "3.3.9";
 
 int tinyfd_verbose = 0 ; /* on unix: prints the command line calls */
+int tinyfd_silent = 1 ; /* 1 (default) or 0 : on unix,
+                        hide errors and warnings from called dialog*/
 
 #if defined(TINYFD_NOLIB) && defined(_WIN32)
 int tinyfd_forceConsole = 1 ;
@@ -729,9 +732,15 @@ static int dirExists(char const * const aDirPath)
         struct _stat lInfo;
         wchar_t * lTmpWChar;
         int lStatRet;
+		int lDirLen;
 
-        if (!aDirPath || !strlen(aDirPath))
-                return 0;
+		if (!aDirPath)
+			return 0;
+		lDirLen = strlen(aDirPath);
+		if (!lDirLen)
+			return 1;
+		if ( (lDirLen == 2) && (aDirPath[1] == ':') )
+			return 1;
 
         if (tinyfd_winUtf8)
         {
@@ -788,6 +797,36 @@ static int fileExists(char const * const aFilePathAndName)
                 fclose(lIn);
                 return 1;
         }
+}
+
+static int replaceWchar(wchar_t * const aString,
+	wchar_t const aOldChr,
+	wchar_t const aNewChr)
+{
+	wchar_t * p;
+	int lRes = 0;
+
+	if (!aString)
+	{
+		return 0;
+	}
+
+	if (aOldChr == aNewChr)
+	{
+		return 0;
+	}
+
+	p = aString;
+	while ((p = wcsrchr(p, aOldChr)))
+	{
+		*p = aNewChr;
+#ifdef TINYFD_NOCCSUNICODE
+		p++;
+#endif
+		p++;
+		lRes = 1;
+	}
+	return lRes;
 }
 
 #endif /* TINYFD_NOLIB */
@@ -1134,12 +1173,16 @@ wchar_t const * tinyfd_inputBoxW(
                 wcscpy(lDialogString, L"Dim result:result=InputBox(\"");
                 if (aMessage && wcslen(aMessage))
                 {
-                        wcscat(lDialogString, aMessage);
+					wcscpy(lBuff, aMessage);
+					replaceWchar(lBuff, L'\n', L' ');
+					wcscat(lDialogString, lBuff);
                 }
                 wcscat(lDialogString, L"\",\"tinyfiledialogsTopWindow\",\"");
                 if (aDefaultInput && wcslen(aDefaultInput))
                 {
-                        wcscat(lDialogString, aDefaultInput);
+					wcscpy(lBuff, aDefaultInput);
+					replaceWchar(lBuff, L'\n', L' ');
+					wcscat(lDialogString, lBuff);
                 }
                 wcscat(lDialogString, L"\"):If IsEmpty(result) then:WScript.Echo 0");
                 wcscat(lDialogString, L":Else: WScript.Echo \"1\" & result : End If");
@@ -1263,13 +1306,13 @@ name = 'txt_input' value = '' style = 'float:left;width:100%' ><BR>\n\
 				fclose(lFile);
 
                 wcscpy(lDialogString, L"cmd.exe /c cscript.exe //U //Nologo ");
-                wcscat(lDialogString, L"%USERPROFILE%\\AppData\\Local\\Temp\\tinyfd.vbs ");
-                wcscat(lDialogString, L">> %USERPROFILE%\\AppData\\Local\\Temp\\tinyfd.txt");
+                wcscat(lDialogString, L"\"%USERPROFILE%\\AppData\\Local\\Temp\\tinyfd.vbs\" ");
+                wcscat(lDialogString, L">> \"%USERPROFILE%\\AppData\\Local\\Temp\\tinyfd.txt\"");
         }
         else
         {
                 wcscpy(lDialogString,
-                        L"cmd.exe /c mshta.exe %USERPROFILE%\\AppData\\Local\\Temp\\tinyfd.hta");
+                        L"cmd.exe /c mshta.exe \"%USERPROFILE%\\AppData\\Local\\Temp\\tinyfd.hta\"");
         }
 
         /* wprintf ( "lDialogString: %ls\n" , lDialogString ) ; */
@@ -1292,6 +1335,9 @@ name = 'txt_input' value = '' style = 'float:left;width:100%' ><BR>\n\
                 free(lDialogString);
                 return NULL;
         }
+
+		memset(lBuff, 0, MAX_PATH_OR_CMD);
+
 #ifdef TINYFD_NOCCSUNICODE
 		fgets((char *)lBuff, 2*MAX_PATH_OR_CMD, lIn);
 #else
@@ -1335,9 +1381,17 @@ name = 'txt_input' value = '' style = 'float:left;width:100%' ><BR>\n\
         }
 
         /* wprintf( "lBuff+1: %ls\n" , lBuff+1 ) ; */
+
 #ifdef TINYFD_NOCCSUNICODE
+		if (aDefaultInput)
+		{
+			lDialogStringLen = wcslen(lBuff);
+			lBuff[lDialogStringLen - 1] = L'\0';
+			lBuff[lDialogStringLen - 2] = L'\0';
+		}
 		return lBuff + 2;
 #else
+		if (aDefaultInput) lBuff[wcslen(lBuff) - 1] = L'\0';
 		return lBuff + 1;
 #endif
 }
@@ -2230,7 +2284,8 @@ static char const * selectFolderDialogWinGuiA(
 {
         BROWSEINFOA bInfo ;
         LPITEMIDLIST lpItem ;
-        HRESULT lHResult;
+        HRESULT lHResult ;
+		char * lRetval = NULL ;
 
         lHResult = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 
@@ -2251,13 +2306,14 @@ static char const * selectFolderDialogWinGuiA(
         if ( lpItem )
         {
                 SHGetPathFromIDListA( lpItem , aoBuff ) ;
+				lRetval = aoBuff;
         }
 
         if (lHResult==S_OK || lHResult==S_FALSE) 
         {
                 CoUninitialize();
         }
-        return aoBuff ;
+		return lRetval;
 }
 #endif /*TINYFD_NOSELECTFOLDERWIN*/
 
@@ -3232,23 +3288,41 @@ static int detectPresence( char const * const aExecutable )
 }
 
 
-static char const * getVersion( char const * const aExecutable ) /*version # must follow :*/
+static char const * getVersion( char const * const aExecutable ) /*version must be first numeral*/
 {
-        static char lBuff [MAX_PATH_OR_CMD] ;
-        char lTestedString [MAX_PATH_OR_CMD] ;
-        FILE * lIn ;
-        char * lTmp ;
-
+	static char lBuff [MAX_PATH_OR_CMD] ;
+	char lTestedString [MAX_PATH_OR_CMD] ;
+	FILE * lIn ;
+	char * lTmp ;
+		
     strcpy( lTestedString , aExecutable ) ;
     strcat( lTestedString , " --version" ) ;
 
     lIn = popen( lTestedString , "r" ) ;
         lTmp = fgets( lBuff , sizeof( lBuff ) , lIn ) ;
         pclose( lIn ) ;
-    if ( ! lTmp || !(lTmp = strchr( lBuff , ':' )) ) return 0 ;
-        lTmp ++ ;
-        /* printf("lTmp %s\n", lTmp); */
-        return lTmp ;
+	
+	lTmp += strcspn(lTmp,"0123456789");
+	/* printf("lTmp:%s\n", lTmp); */
+	return lTmp ;
+}
+
+
+static int * const getMajorMinorPatch( char const * const aExecutable )
+{
+	static int lArray [3] ;
+	char * lTmp ;
+
+	lTmp = (char *) getVersion(aExecutable);
+	lArray[0] = atoi( strtok(lTmp," ,.-") ) ;
+	/* printf("lArray0 %d\n", lArray[0]); */
+	lArray[1] = atoi( strtok(0," ,.-") ) ;
+	/* printf("lArray1 %d\n", lArray[1]); */
+	lArray[2] = atoi( strtok(0," ,.-") ) ;
+	/* printf("lArray2 %d\n", lArray[2]); */
+
+	if ( !lArray[0] && !lArray[1] && !lArray[2] ) return NULL;
+	return lArray ;
 }
 
 
@@ -3356,6 +3430,7 @@ static char const * terminalName( )
 {
         static char lTerminalName[128] = "*" ;
         char lShellName[64] = "*" ;
+        int * lArray;
 
         if ( lTerminalName[0] == '*' )
         {
@@ -3452,8 +3527,9 @@ static char const * terminalName( )
                         strcat(lTerminalName , " -e " ) ;
                         strcat(lTerminalName , lShellName ) ;
                 }
-                else if ( strcpy(lTerminalName,"gnome-terminal") /*bad (good if version <3 or >=3.18)*/
-                && detectPresence(lTerminalName) )
+                else if ( strcpy(lTerminalName,"gnome-terminal")
+                && detectPresence(lTerminalName) && (lArray = getMajorMinorPatch(lTerminalName))
+				&& ((lArray[0]<3) || (lArray[0]==3 && lArray[1]<=6)) )
                 {
                         strcat(lTerminalName , " --disable-factory -x " ) ;
                         strcat(lTerminalName , lShellName ) ;
@@ -3675,48 +3751,6 @@ static int osascriptPresent( )
 }
 
 
-static int kdialogPresent( )
-{
-        static int lKdialogPresent = -1 ;
-        char lBuff [MAX_PATH_OR_CMD] ;
-        FILE * lIn ;
-
-        if ( lKdialogPresent < 0 )
-        {
-                lKdialogPresent = detectPresence("kdialog") ;
-                if ( lKdialogPresent && !getenv("SSH_TTY") )
-                {
-                        lIn = popen( "kdialog --attach 2>&1" , "r" ) ;
-                        if ( fgets( lBuff , sizeof( lBuff ) , lIn ) != NULL )
-                        {
-                                if ( ! strstr( "Unknown" , lBuff ) )
-                                {
-                                        lKdialogPresent = 2 ;
-                                        if (tinyfd_verbose) printf("kdialog-attach %d\n", lKdialogPresent);
-                                }
-                        }
-                        pclose( lIn ) ;
-
-                        if (lKdialogPresent == 2)
-                        {
-                                lKdialogPresent = 1 ;
-                                lIn = popen( "kdialog --passivepopup 2>&1" , "r" ) ;
-                                if ( fgets( lBuff , sizeof( lBuff ) , lIn ) != NULL )
-                                {
-                                        if ( ! strstr( "Unknown" , lBuff ) )
-                                        {
-                                                lKdialogPresent = 2 ;
-                                                if (tinyfd_verbose) printf("kdialog-popup %d\n", lKdialogPresent);
-                                        }
-                                }
-                                pclose( lIn ) ;
-                        }
-                }
-        }
-        return graphicMode() ? lKdialogPresent : 0 ;
-}
-
-
 static int qarmaPresent( )
 {
         static int lQarmaPresent = -1 ;
@@ -3799,6 +3833,59 @@ static int zenity3Present()
                 }
         }
         return graphicMode() ? lZenity3Present : 0 ;
+}
+
+
+static int kdialogPresent( )
+{
+	static int lKdialogPresent = -1 ;
+	char lBuff [MAX_PATH_OR_CMD] ;
+	FILE * lIn ;
+	char * lDesktop;
+
+	if ( lKdialogPresent < 0 )
+	{
+		if ( zenityPresent() )
+		{
+			lDesktop = getenv("XDG_SESSION_DESKTOP");
+			if ( !lDesktop  || ( strcmp(lDesktop, "KDE") && strcmp(lDesktop, "lxqt") ) )
+			{
+				lKdialogPresent = 0 ;
+				return lKdialogPresent ;
+			}
+		}
+
+		lKdialogPresent = detectPresence("kdialog") ;
+		if ( lKdialogPresent && !getenv("SSH_TTY") )
+		{
+			lIn = popen( "kdialog --attach 2>&1" , "r" ) ;
+			if ( fgets( lBuff , sizeof( lBuff ) , lIn ) != NULL )
+			{
+				if ( ! strstr( "Unknown" , lBuff ) )
+				{
+					lKdialogPresent = 2 ;
+					if (tinyfd_verbose) printf("kdialog-attach %d\n", lKdialogPresent);
+				}
+			}
+			pclose( lIn ) ;
+
+			if (lKdialogPresent == 2)
+			{
+				lKdialogPresent = 1 ;
+				lIn = popen( "kdialog --passivepopup 2>&1" , "r" ) ;
+				if ( fgets( lBuff , sizeof( lBuff ) , lIn ) != NULL )
+				{
+					if ( ! strstr( "Unknown" , lBuff ) )
+					{
+						lKdialogPresent = 2 ;
+						if (tinyfd_verbose) printf("kdialog-popup %d\n", lKdialogPresent);
+					}
+				}
+				pclose( lIn ) ;
+			}
+		}
+	}
+	return graphicMode() ? lKdialogPresent : 0 ;
 }
 
 
@@ -4292,6 +4379,8 @@ int tinyfd_messageBox(
                                 strcat( lDialogString , "information" ) ;
                         }
                 }
+
+                if (tinyfd_silent) strcat( lDialogString , " 2>/dev/null ");
 
                 if ( ! strcmp( "yesnocancel" , aDialogType ) )
                 {
@@ -5309,6 +5398,7 @@ char const * tinyfd_inputBox(
                 {
                         strcat(lDialogString, " --hide-text") ;
                 }
+                if (tinyfd_silent) strcat( lDialogString , " 2>/dev/null ");
                 strcat( lDialogString ,
                                 ");if [ $? = 0 ];then echo 1$szAnswer;else echo 0$szAnswer;fi");
         }
@@ -5859,6 +5949,7 @@ char const * tinyfd_saveFileDialog(
                         }
                         strcat( lDialogString , "' --file-filter='All files | *'" ) ;
                 }
+                if (tinyfd_silent) strcat( lDialogString , " 2>/dev/null ");
         }
         else if ( !xdialogPresent() && tkinter2Present( ) )
         {
@@ -6300,6 +6391,7 @@ char const * tinyfd_openFileDialog(
                         }
                         strcat( lDialogString , "' --file-filter='All files | *'" ) ;
                 }
+                if (tinyfd_silent) strcat( lDialogString , " 2>/dev/null ");
         }
         else if ( tkinter2Present( ) )
         {
@@ -6673,6 +6765,7 @@ char const * tinyfd_selectFolderDialog(
                         strcat(lDialogString, aDefaultPath) ;
                         strcat(lDialogString, "\"") ;
                 }
+                if (tinyfd_silent) strcat( lDialogString , " 2>/dev/null ");
         }
         else if ( !xdialogPresent() && tkinter2Present( ) )
         {
@@ -6965,6 +7058,7 @@ to set mycolor to choose color default color {");
                         strcat(lDialogString, aTitle) ;
                         strcat(lDialogString, "\"") ;
                 }
+                if (tinyfd_silent) strcat( lDialogString , " 2>/dev/null ");
         }
         else if ( xdialogPresent() )
         {
@@ -7236,6 +7330,7 @@ char lString[1024];
 char const * lFilterPatterns[2] = { "*.txt", "*.text" };
 
 tinyfd_verbose = argc - 1;
+tinyfd_silent = 1;
 
 lWillBeGraphicMode = tinyfd_inputBox("tinyfd_query", NULL, NULL);
 
