@@ -308,7 +308,7 @@ pub fn color_chooser_dialog(title: &str, default: DefaultColorValue)
 
     let result = unsafe {
         tinyfd_colorChooser(color_title.as_ptr(),
-                            color_default_hex.map_or(ptr::null(), |h| h.as_ptr()),
+                            color_default_hex.as_ref().map_or(ptr::null(), |h| h.as_ptr()),
                             color_default_rgb.as_ptr(),
                             color_result_rgb.as_mut_ptr())
     };
