@@ -49,16 +49,6 @@ fn main() {
         None => color = "null".to_string(),
     }
 
-    let list: String;
-    match tinyfiledialogs::list_dialog("Test Dialog",
-                                       &["Id", "Name"],
-                                       Some(&["471", "Donald Duck",
-                                              "1143", "Chris P. Bacon",
-                                              "6509", "Moon Doge"])) {
-        Some(result) => list = result,
-        None => list = "null".to_string(),
-    }
-
     println!("Choice {:?}", choice);
     println!("User input {:?}", user_input);
     println!("User input 2 {:?}", user_input_2);
@@ -67,5 +57,4 @@ fn main() {
     println!("Open file {:?}", open_file);
     println!("folder {:?}", folder);
     println!("color {:?}", color);
-    println!("List {:?}", list);
 }
