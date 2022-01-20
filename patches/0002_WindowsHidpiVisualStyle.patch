@@ -5,14 +5,14 @@ index 30865fe..de38db6 100644
 @@ -182,6 +182,14 @@ char tinyfd_needs[] = "\
  #pragma warning(disable:4706) /* allows usage of strncpy, strcpy, strcat, sprintf, fopen */
  #endif
- 
-+#ifdef _WIN64
+
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64)
 +#include <ShellScalingApi.h>
 +
 +#pragma comment(linker,"\"/manifestdependency:type='win32' \
 +name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 +processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
-+#endif // _WIN64
++#endif // USE_WINDOWS_HIDPI
 +
  static int getenvDISPLAY(void)
  {
@@ -21,7 +21,7 @@ index 30865fe..de38db6 100644
          wchar_t const * aIconType, /* "info" "warning" "error" "question" */
          int aDefaultButton) /* 0 for cancel/no , 1 for ok/yes , 2 for no in yesnocancel */
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 +#endif
          int lBoxReturnValue;
@@ -31,7 +31,7 @@ index 30865fe..de38db6 100644
          wchar_t const * aMessage, /* NULL or L"" may contain \n \t */
          wchar_t const * aIconType) /* L"info" L"warning" L"error" */
  {
-+#ifdef _WIN64
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64)
 +        SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
          wchar_t * lDialogString;
@@ -41,7 +41,7 @@ index 30865fe..de38db6 100644
          wchar_t const * aMessage, /* NULL or L"" (\n and \t have no effect) */
          wchar_t const * aDefaultInput) /* L"" , if NULL it's a passwordBox */
  {
-+#ifdef _WIN64
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64)
 +        SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
          static wchar_t lBuff[MAX_PATH_OR_CMD];
@@ -59,7 +59,7 @@ index 30865fe..de38db6 100644
          wchar_t const * const * aFilterPatterns, /* NULL or {"*.jpg","*.png"} */
          wchar_t const * aSingleFilterDescription) /* NULL or "image files" */
  {
-+#ifdef _WIN64
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64)
 +        SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
          static wchar_t lBuff[MAX_PATH_OR_CMD];
@@ -69,7 +69,7 @@ index 30865fe..de38db6 100644
  		wchar_t const * aSingleFilterDescription, /* NULL or "image files" */
          int aAllowMultipleSelects) /* 0 or 1 ; -1 to free allocated memory and return */
  {
-+#ifdef _WIN64
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64)
 +        SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
          size_t lLengths[MAX_MULTIPLE_FILES];
@@ -79,7 +79,7 @@ index 30865fe..de38db6 100644
          wchar_t const * aTitle, /* NULL or "" */
          wchar_t const * aDefaultPath) /* NULL or "" */
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +        SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
          static wchar_t lBuff[MAX_PATH_OR_CMD];
@@ -89,7 +89,7 @@ index 30865fe..de38db6 100644
          unsigned char const aDefaultRGB[3], /* { 0 , 255 , 255 } */
          unsigned char aoResultRGB[3]) /* { 0 , 0 , 0 } */
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +        SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 +#endif
          static wchar_t lResultHexRGB[8];
@@ -99,7 +99,7 @@ index 30865fe..de38db6 100644
  	char const * aIconType, /* "info" "warning" "error" "question" */
  	int aDefaultButton) /* 0 for cancel/no , 1 for ok/yes , 2 for no in yesnocancel */
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
  	int lIntRetVal;
@@ -109,7 +109,7 @@ index 30865fe..de38db6 100644
  	char const * aMessage, /* NULL or "" may NOT contain \n nor \t */
  	char const * aIconType)
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
  	wchar_t lTitle[128] = L"";
@@ -119,7 +119,7 @@ index 30865fe..de38db6 100644
  	char const * aMessage, /* NULL or "" may NOT contain \n nor \t */
  	char const * aDefaultInput) /* "" , if NULL it's a passwordBox */
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
  	wchar_t lTitle[128] = L"";
@@ -129,7 +129,7 @@ index 30865fe..de38db6 100644
  	char const * const * aFilterPatterns, /* NULL or {"*.jpg","*.png"} */
  	char const * aSingleFilterDescription) /* NULL or "image files" */
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
  	wchar_t lTitle[128] = L"";
@@ -139,7 +139,7 @@ index 30865fe..de38db6 100644
  	char const * aSingleFilterDescription, /* NULL or "image files" */
  	int aAllowMultipleSelects) /* 0 or 1 */
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
  	wchar_t lTitle[128] = L"";
@@ -149,7 +149,7 @@ index 30865fe..de38db6 100644
  	char const * aTitle, /*  NULL or "" */
  	char const * aDefaultPath) /* NULL or "" */
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
  	wchar_t lTitle[128] = L"";
@@ -159,7 +159,7 @@ index 30865fe..de38db6 100644
          unsigned char const aDefaultRGB[3], /* { 0 , 255 , 255 } */
          unsigned char aoResultRGB[3]) /* { 0 , 0 , 0 } */
  {
-+#ifdef _WIN64 
++#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 +        SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 +#endif
          static char lResultHexRGB[8];
@@ -178,13 +178,13 @@ index 46369f1..56b279b 100644
 - #pragma warning(disable:4706) /* allows usage of strncpy, strcpy, strcat, sprintf, fopen */
 - #endif
 - 
--+#ifdef _WIN64
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64)
 -+#include <ShellScalingApi.h>
 -+
 -+#pragma comment(linker,"\"/manifestdependency:type='win32' \
 -+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 -+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
--+#endif // _WIN64
+-+#endif // USE_WINDOWS_HIDPI
 -+
 - static char * getPathWithoutFinalSlash(
 -         char * const aoDestination, /* make sure it is allocated, use _MAX_PATH */
@@ -193,7 +193,7 @@ index 46369f1..56b279b 100644
 -         wchar_t const * const aIconType, /* "info" "warning" "error" "question" */
 -         int const aDefaultButton) /* 0 for cancel/no , 1 for ok/yes , 2 for no in yesnocancel */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 -+#endif
 -         int lBoxReturnValue;
@@ -203,7 +203,7 @@ index 46369f1..56b279b 100644
 -         char const * const aIconType, /* "info" "warning" "error" "question" */
 -         int const aDefaultButton) /* 0 for cancel/no , 1 for ok/yes , 2 for no in yesnocancel */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         int lIntRetVal;
@@ -213,7 +213,7 @@ index 46369f1..56b279b 100644
 -         wchar_t const * const aMessage, /* NULL or L"" may contain \n \t */
 -         wchar_t const * const aIconType) /* L"info" L"warning" L"error" */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         wchar_t * lDialogString;
@@ -223,7 +223,7 @@ index 46369f1..56b279b 100644
 -         char const * const aMessage, /* NULL or "" may NOT contain \n nor \t */
 -         char const * const aIconType) 
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         wchar_t * lTitle;
@@ -233,7 +233,7 @@ index 46369f1..56b279b 100644
 -         wchar_t const * const aMessage, /* NULL or L"" may NOT contain \n nor \t */
 -         wchar_t const * const aDefaultInput) /* L"" , if NULL it's a passwordBox */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         static wchar_t lBuff[MAX_PATH_OR_CMD];
@@ -251,7 +251,7 @@ index 46369f1..56b279b 100644
 -         char const * const aMessage, /* NULL or "" may NOT contain \n nor \t */
 -         char const * const aDefaultInput) /* "" , if NULL it's a passwordBox */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         wchar_t * lTitle;
@@ -261,7 +261,7 @@ index 46369f1..56b279b 100644
 -         wchar_t const * const * const aFilterPatterns, /* NULL or {"*.jpg","*.png"} */
 -         wchar_t const * const aSingleFilterDescription) /* NULL or "image files" */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         static wchar_t lBuff[MAX_PATH_OR_CMD];
@@ -271,7 +271,7 @@ index 46369f1..56b279b 100644
 -         char const * const * const aFilterPatterns, /* NULL or {"*.jpg","*.png"} */
 -         char const * const aSingleFilterDescription) /* NULL or "image files" */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         wchar_t * lTitle;
@@ -281,7 +281,7 @@ index 46369f1..56b279b 100644
 -         wchar_t const * const aSingleFilterDescription, /* NULL or "image files" */
 -         int const aAllowMultipleSelects) /* 0 or 1 */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         static wchar_t lBuff[MAX_MULTIPLE_FILES*MAX_PATH_OR_CMD];
@@ -291,7 +291,7 @@ index 46369f1..56b279b 100644
 -         char const * const aSingleFilterDescription, /* NULL or "image files" */
 -         int const aAllowMultipleSelects) /* 0 or 1 */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         wchar_t * lTitle;
@@ -301,7 +301,7 @@ index 46369f1..56b279b 100644
 -         wchar_t const * const aTitle, /* NULL or "" */
 -         wchar_t const * const aDefaultPath) /* NULL or "" */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         static wchar_t lBuff[MAX_PATH_OR_CMD];
@@ -311,7 +311,7 @@ index 46369f1..56b279b 100644
 -         char const * const aTitle , /*  NULL or "" */
 -         char const * const aDefaultPath ) /* NULL or "" */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         wchar_t * lTitle;
@@ -321,7 +321,7 @@ index 46369f1..56b279b 100644
 -         unsigned char const aDefaultRGB[3], /* { 0 , 255 , 255 } */
 -         unsigned char aoResultRGB[3]) /* { 0 , 0 , 0 } */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 -+#endif
 -         static wchar_t lResultHexRGB[8];
@@ -331,7 +331,7 @@ index 46369f1..56b279b 100644
 -         unsigned char const aDefaultRGB[3], /* { 0 , 255 , 255 } */
 -         unsigned char aoResultRGB[3]) /* { 0 , 0 , 0 } */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         static char lResultHexRGB[8];
@@ -341,7 +341,7 @@ index 46369f1..56b279b 100644
 -     char const * const aIconType , /* "info" "warning" "error" "question" */
 -     int const aDefaultButton ) /* 0 for cancel/no , 1 for ok/yes , 2 for no in yesnocancel */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         int lBoxReturnValue;
@@ -351,7 +351,7 @@ index 46369f1..56b279b 100644
 -     char const * const * const aFilterPatterns , /* NULL or {"*.jpg","*.png"} */
 -     char const * const aSingleFilterDescription ) /* NULL or "image files" */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         char lDirname [MAX_PATH_OR_CMD] ;
@@ -361,7 +361,7 @@ index 46369f1..56b279b 100644
 -     char const * const aSingleFilterDescription , /* NULL or "image files" */
 -     int const aAllowMultipleSelects ) /* 0 or 1 */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         char lDirname [MAX_PATH_OR_CMD] ;
@@ -371,7 +371,7 @@ index 46369f1..56b279b 100644
 -         char const * const aTitle , /*  NULL or "" */
 -         char const * const aDefaultPath ) /* NULL or "" */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         BROWSEINFOA bInfo ;
@@ -381,7 +381,7 @@ index 46369f1..56b279b 100644
 -         unsigned char const aDefaultRGB[3], /* { 0 , 255 , 255 } */
 -         unsigned char aoResultRGB[3]) /* { 0 , 0 , 0 } */
 - {
--+#ifdef _WIN64 
+-+#if defined(USE_WINDOWS_HIDPI) && defined(_WIN64) 
 -+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE); 
 -+#endif
 -         static char lResultHexRGB[8];

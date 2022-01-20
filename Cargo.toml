@@ -10,6 +10,10 @@ repository = "https://github.com/jdm/tinyfiledialogs-rs"
 
 build = "build.rs"
 
+[features]
+default = ["windows-hidpi"]
+windows-hidpi = []
+
 [lib]
 name = "tinyfiledialogs"
 
