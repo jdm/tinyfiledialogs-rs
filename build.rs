@@ -9,9 +9,16 @@ use std::env;
 fn main() {
     let target = env::var("TARGET").unwrap();
 
+    let windows_hidpi = if cfg!(feature = "windows-hidpi") {
+        "USE_WINDOWS_HIDPI"
+    }else {
+        "NO_WINDOWS_HIDPI"
+    };
+    
     cc::Build::new()
         .file("libtinyfiledialogs/tinyfiledialogs.c")
         .flag("-v")
+        .define(windows_hidpi,None)
         .compile("libtinyfiledialogs.a");
 
     if target.contains("windows") {
