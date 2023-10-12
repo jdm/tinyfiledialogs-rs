@@ -1,3 +1,14 @@
+//! # tinyfiledialogs-rs
+//!
+//! This is a high-level Rust binding to the excellent [tinyfiledialogs library](https://sourceforge.net/projects/tinyfiledialogs/)
+//! by Guillaume Vareille.
+//!
+//! ## Security Warning
+//!
+//! tinyfiledialogs should only be used with trusted input. Using it with
+//! untrusted input, for example as dialog title or message, can in the worst
+//! case lead to execution of arbitrary commands.
+
 extern crate libc;
 use libc::{c_char, c_uchar, c_int};
 use std::ffi::{CStr, CString};

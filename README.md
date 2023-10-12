@@ -11,3 +11,9 @@ To use this library, add this to the `dependencies` section in `Cargo.toml`:
 ```
 tinyfiledialogs = "3.0"
 ```
+
+## Security Warning
+
+tinyfiledialogs should only be used with trusted input. Using it with
+untrusted input, for example as dialog title or message, can in the worst
+case lead to execution of arbitrary commands.
