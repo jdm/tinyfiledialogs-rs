@@ -9,7 +9,7 @@ use std::env;
 fn main() {
     let target = env::var("TARGET").unwrap();
 
-    let windows_hidpi = if cfg!(feature = "windows-hidpi") {
+    let windows_hidpi = if cfg!(feature = "windows-hidpi") & !target.ends_with("pc-windows-gnu") {
         "USE_WINDOWS_HIDPI"
     }else {
         "NO_WINDOWS_HIDPI"
